@@ -1,7 +1,7 @@
 <h1 style="text-decoration: none;">Leonardo MicroMouse Help Code</h1>
-
+<img height=80px align='right' src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Arduino_Logo.svg/720px-Arduino_Logo.svg.png'/>
 Here you will find the help code for MicroMouse.
-<br>Plase also refer to the MicroMouse user guide for more infomation.
+<br>Please also refer to the MicroMouse user guide for more infomation.
 
 ## Contents
 <img src="https://github.com/user-attachments/assets/4a2ef373-2c49-4930-8519-a5ad0b24f1ef" alt="MicroMouse Title Page" align="right" height=250px/>
