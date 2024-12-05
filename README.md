@@ -120,5 +120,5 @@ void clearBuffer(CircularBuffer &cb);
 * Yash Kalidindi
 * Abbas 
 
-## Lisence
+## License
 CC BY-NC-SA 4.0
