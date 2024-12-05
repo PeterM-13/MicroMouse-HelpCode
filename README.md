@@ -34,7 +34,7 @@ bool fatalError = false;
 // Updates this in `Main.ino` line 82.
 
 bool collisionDetectionActive = false;
-// When `true`, monitors the IMU and sets fatal error to True if IMU data goes above threshold, indicating a collision. 
+// When `true`, monitors the IMU and sets `fatalError` to `true` if IMU data goes above threshold, indicating a collision. 
 // Threshold set in `Gyro.cpp` line 3.
 ```
 
