@@ -1,7 +1,14 @@
-# Leonardo MicroMouse Help Code
+<h1 style="text-decoration: none;">Leonardo MicroMouse Help Code</h1>
 
+<img src="https://github.com/user-attachments/assets/4a2ef373-2c49-4930-8519-a5ad0b24f1ef" alt="MicroMouse Title Page" align="right" height=200px/>
+
+<br>
 Here you will find the help code for MicroMouse.
-Plase also refer to the MicroMouse user guide for more infomation.
+<br>
+<br>Plase also refer to the MicroMouse user guide for more infomation.
+<br>
+<br>
+<br>
 
 ## Contents
 - [Documentation](#documentation)
