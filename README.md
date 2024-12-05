@@ -1,16 +1,11 @@
 <h1 style="text-decoration: none;">Leonardo MicroMouse Help Code</h1>
 
-<img src="https://github.com/user-attachments/assets/4a2ef373-2c49-4930-8519-a5ad0b24f1ef" alt="MicroMouse Title Page" align="right" height=200px/>
-
-<br>
 Here you will find the help code for MicroMouse.
-<br>
 <br>Plase also refer to the MicroMouse user guide for more infomation.
-<br>
-<br>
-<br>
 
 ## Contents
+<img src="https://github.com/user-attachments/assets/4a2ef373-2c49-4930-8519-a5ad0b24f1ef" alt="MicroMouse Title Page" align="right" height=250px/>
+
 - [Documentation](#documentation)
     - [Global Variables](#global-variables)
     - [Global Methods](#global-methods)
@@ -25,12 +20,14 @@ Here you will find the help code for MicroMouse.
 ```c++
 const int DEBUG_MODE = 0; 
 // 0 = No logs, 1 = some logs, 2 = all logs
+// MUST BE SET TO `0` TO OPERATE UNCONNECTED FORM SERIAL MONITOR!
+// When set to >=1 it waits forever until serial monitor connected, so no logs are missed.
 
 bool wallLeft = true;
 bool wallRight = true;
 bool wallBack = true;
 bool wallFront = false;
-// Maze Variables
+// Variables to store current surrounding walls.
 
 bool fatalError = false; 
 // If `true`, causes mouse to stop. 
