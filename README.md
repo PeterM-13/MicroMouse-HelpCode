@@ -12,6 +12,7 @@ Here you will find the help code for MicroMouse.
     - [Actions](#actions)
     - [Action Buffer](#action-buffer)
 - [Getting Started](#getting-started)
+- [Dependency](#dependency)
 - [Contributors](#contributors)
 - [License](#license)
 
@@ -116,8 +117,13 @@ void clearBuffer(CircularBuffer &cb);
 <br>
 
 ## Getting Started
-Create your maze-solving algorthim in `YourAlgorithm.cpp`.
-Make use of the mathods described below, to add actins to the `actionBuffer`.
+Create your maze-solving algorthim in `YourAlgorithm.cpp`. <br>
+Make use of the mathods described above, to add actins to the `actionBuffer`.
+
+<br>
+
+## Dependency
+`<Arduino_LSM9DS1.h>` Used to IMU control.
 
 <br>
 
