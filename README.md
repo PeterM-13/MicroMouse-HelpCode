@@ -123,7 +123,7 @@ Make use of the mathods described above, to add actins to the `actionBuffer`.
 <br>
 
 ## Dependency
-`<Arduino_LSM9DS1.h>` Used to IMU control.
+`<Arduino_LSM9DS1.h>` Used to control the IMU & Gyro.
 
 <br>
 
