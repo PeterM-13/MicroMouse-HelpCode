@@ -12,7 +12,7 @@ const int RIGHT_ENCODER_PIN = 7;
 
 // Default motor Bias (found with trial and error currenly)
 const int LEFT_MOTOR_BIAS = 0;
-const int RIGHT_MOTOR_BIAS = 0; 
+const int RIGHT_MOTOR_BIAS = 5; 
 // Varying motor bias - used for lane centering
 int leftMotorBias = LEFT_MOTOR_BIAS;
 int rightMotorBias = RIGHT_MOTOR_BIAS;

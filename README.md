@@ -11,6 +11,7 @@ Here you will find the help code for MicroMouse.
     - [Global Methods](#global-methods)
     - [Actions](#actions)
     - [Action Buffer](#action-buffer)
+- [Getting Started](#getting-started)
 - [Contributors](#contributors)
 - [License](#license)
 
@@ -112,10 +113,21 @@ void clearBuffer(CircularBuffer &cb);
 // Empties the buffer `cb`.
 ```
 
+<br>
+
+## Getting Started
+Create your maze-solving algorthim in `YourAlgorithm.cpp`.
+Make use of the mathods described below, to add actins to the `actionBuffer`.
+
+<br>
+
 ## Contributors
 * Peter Metcalfe
 * Yash Kalidindi
-* Abbas 
+* Abbas Ashfaq
+
+<br>
+<br>
 
 ## License
 CC BY-NC-SA 4.0
