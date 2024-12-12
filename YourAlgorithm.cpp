@@ -39,17 +39,8 @@ void mainAlgorithm()
 {
   // *********   You can put your Maze-Solving Algorithm here   *********
 
-  addDelayAction(1000);
-  addRotateAction(30, 100);
-  addBlindMoveForwardAction(0.5, 100);
-  addBlindReverseAction(0.5, 100);
-  addRotateAction(-70.0, 100);
-  addBlindMoveForwardAction(0.5, 100);
-  addBlindReverseAction(0.5, 100);
-  addRotateAction(-30.0, 100);
-  addBlindMoveForwardAction(0.5, 100);
-  addBlindReverseAction(0.5, 100);
-  addRotateAction(-300.0, 100);
+
+
 
 
 
