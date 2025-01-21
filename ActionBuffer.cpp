@@ -64,6 +64,22 @@ void clearBuffer(CircularBuffer &cb)
   cb.count = 0;
 }
 
+void replaceCurrentAction(CircularBuffer &cb, Action action)
+{
+  if (isBufferEmpty(cb)) 
+  {
+    addAction(cb, action);
+  } 
+  else if (!currentActionComplete) 
+  {
+    cb.buffer[cb.tail] = action;
+  } 
+  else 
+  {
+    addAction(cb, action);
+  }
+}
+
 
 
 // ------------ Add Action Functions --------------

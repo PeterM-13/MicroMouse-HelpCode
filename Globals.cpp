@@ -8,6 +8,7 @@ bool wallLeft = true;
 bool wallRight = true;
 bool wallBack = true;
 bool wallFront = false;
+bool wallFrontClose = false;
 
 // Progrm Variables
 bool fatalError = false; // If True causes mouse to stop

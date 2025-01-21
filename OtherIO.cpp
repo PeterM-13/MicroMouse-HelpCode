@@ -59,7 +59,7 @@ bool checkButtonsForPress()
   {
     print("EVENT: Button 1 Pressed");
     ledOn();
-    delay(150); // Allow button bounce
+    delay(200); // Allow button bounce
     ledOff();
     pushButton1PrevState = pushButton1State;
     
@@ -77,7 +77,7 @@ bool checkButtonsForPress()
   {
     print("EVENT: Button 2 Pressed");
     ledOn();
-    delay(150); // Allow button bounce
+    delay(200); // Allow button bounce
     ledOff();
     pushButton2PrevState = pushButton2State;
     

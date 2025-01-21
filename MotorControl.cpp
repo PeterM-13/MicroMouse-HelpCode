@@ -12,17 +12,18 @@ const int RIGHT_ENCODER_PIN = 7;
 
 // Default motor Bias (found with trial and error currenly)
 const int LEFT_MOTOR_BIAS = 0;
-const int RIGHT_MOTOR_BIAS = 0; 
+const int RIGHT_MOTOR_BIAS = 3; 
 // Varying motor bias - used for lane centering
 int leftMotorBias = LEFT_MOTOR_BIAS;
 int rightMotorBias = RIGHT_MOTOR_BIAS;
 
 // Number of encoder cycles to move one cell, found with trial and error currently
-const int CELL_DISTANCE = 600; 
+const int CELL_DISTANCE = 560; 
 
-// Constansts used for lane centering (Adjust with trail and error)
-const unsigned int OFF_AXES_THRESHOLD = 12; // How tight to the middle of the lane it stays
-const signed int IR_SENSOR_LEFT_RIGHT_BIAS = 0;  // Corrects bias left or right of the lane - make negative for left bias
+// Constansts used for lane centering (LC) (Adjust with trail and error)
+const int LC_OFF_AXES_THRESHOLD = 3; // How tight to the middle of the lane it stays. Lower = more sensitive.
+const float LC_KP = 5.0; // Proportional Gain - how quickly it adjusts. Lower = more sesnsitive.
+const signed int LC_LEFT_RIGHT_BIAS = -45;  // Corrects bias left or right of the lane - make negative for right movement
 
 // Varriables keeping track of live positional data
 int leftMotorDirection = parked;
@@ -40,6 +41,12 @@ float gyroAngleEnd = 0.0;
 bool laneCenteringActive = false;
 long actionDelayEnd = 0.0;
 bool actionDelayActive = false;
+
+// Variables used for collision detection
+long colDetcPrevTime_ms = 0; // Last time collisions were detected
+int colDetcPrevStepCount = 0; // Last time step count was checked
+const int COL_DETC_TIME_GAP_ms = 500;   // Check for collision every 500ms
+const int COL_DETC_STEP_THRESHOLD= 50; // Check for min 50 steps every 500ms
 
 
 void setupMotors()
@@ -66,15 +73,25 @@ void setupMotors()
 void loopMotors()
 {
   if(leftMotorDirection != parked || rightMotorDirection != parked) // If moving
-  {
-    if( (spinDirection == notSpinning) && (leftMotorSteps > leftMotorStepsEnd || rightMotorSteps > rightMotorStepsEnd) ) // Check if should stop motors
+  { 
+    if (spinDirection == notSpinning && collisionDetectionActive)
     {
-      parkMotors();
+      detectCollisionWithSteps();
     }
+    
 
-    if( (spinDirection == clockwise && gyroAngle < gyroAngleEnd) || (spinDirection == antiClockwise && gyroAngle > gyroAngleEnd) ) // Check if should stop spinning
+    if( (leftMotorSteps > leftMotorStepsEnd || rightMotorSteps > rightMotorStepsEnd) ) // Check if should stop motors
     {
-      parkMotors();
+      parkMotors(true);
+    }
+    // if( (spinDirection == clockwise && gyroAngle < gyroAngleEnd) || (spinDirection == antiClockwise && gyroAngle > gyroAngleEnd) ) // Check if should stop spinning
+    // {
+    //   parkMotors();
+    // }
+    isWallFrontClose();
+    if(wallFrontClose)
+    {
+      collisionSolution();
     }
 
     if(laneCenteringActive)
@@ -128,47 +145,9 @@ void reverseMotors()
   analogWrite(RIGHT_MOTOR_PIN_B, 0); 
   rightMotorDirection = reversing;
 }
-
-
-// ------------ Actions ---------------
-void moveForward(float nCells)
+void driveMotorsOpposite(bool clockwise)
 {
-  int distanceToTravel = CELL_DISTANCE * nCells;
-  leftMotorStepsEnd = leftMotorSteps + distanceToTravel;
-  rightMotorStepsEnd = rightMotorSteps + distanceToTravel;
-  driveMotors();
-  print("INFO: Motors Forward: " + String(nCells) + " squares");
-}
-
-void reverse(float nCells)
-{
-  int distanceToTravel = CELL_DISTANCE * nCells;
-  leftMotorStepsEnd = leftMotorSteps + distanceToTravel;
-  rightMotorStepsEnd = rightMotorSteps + distanceToTravel;
-  reverseMotors();
-  print("INFO: Motors Reverse: " + String(nCells) + " squares");
-}
-
-void parkMotors()
-{
-  leftMotorDirection = parked;
-  analogWrite(LEFT_MOTOR_PIN_A, 0);
-  analogWrite(LEFT_MOTOR_PIN_B, 0); 
-  rightMotorDirection = parked;
-  analogWrite(RIGHT_MOTOR_PIN_A, 0);
-  analogWrite(RIGHT_MOTOR_PIN_B, 0); 
-  spinDirection = notSpinning;
-  laneCenteringActive = false;
-  currentActionComplete = true;
-  print("INFO: Motors Parked");
-}
-
-void rotate(float angle)
-{
-  const float currentSpeed = ((leftMotorSpeed + rightMotorSpeed) / 2.0); // Used to scale angleOffset, as the faster you go the more error there is.
-  const float angleOffset = 0.0101 * currentSpeed;
-  gyroAngleEnd = gyroAngle - (angle * angleOffset);
-  if(angle > 0.0) // Clockwise
+  if(clockwise == true) // Clockwise
   {
     spinDirection = clockwise;
     analogWrite(LEFT_MOTOR_PIN_A, leftMotorSpeed - rightMotorBias); 
@@ -178,7 +157,7 @@ void rotate(float angle)
     analogWrite(RIGHT_MOTOR_PIN_B, 0); 
     rightMotorDirection = reversing;
   }
-  else if(angle < 0.0) // Anti-Clockwise
+  else // Anti-Clockwise
   {
     spinDirection = antiClockwise;
     analogWrite(LEFT_MOTOR_PIN_A, 0);
@@ -188,7 +167,79 @@ void rotate(float angle)
     analogWrite(RIGHT_MOTOR_PIN_B, rightMotorSpeed - leftMotorBias);
     rightMotorDirection = driving;
   }
+}
+
+
+// ------------ Actions ---------------
+void moveForward(float nCells)
+{
+  int distanceToTravel = CELL_DISTANCE * nCells;
+  leftMotorStepsEnd = leftMotorSteps + distanceToTravel;
+  rightMotorStepsEnd = rightMotorSteps + distanceToTravel;
+  resetCollisionDetection();
+  driveMotors();
+  print("INFO: Motors Forward: " + String(nCells) + " squares");
+}
+void reverse(float nCells)
+{
+  int distanceToTravel = CELL_DISTANCE * nCells;
+  leftMotorStepsEnd = leftMotorSteps + distanceToTravel;
+  rightMotorStepsEnd = rightMotorSteps + distanceToTravel;
+  resetCollisionDetection();
+  reverseMotors();
+  print("INFO: Motors Reverse: " + String(nCells) + " squares");
+}
+
+void parkMotors(bool withBrake)
+{
+  leftMotorDirection = parked;
+  analogWrite(LEFT_MOTOR_PIN_A, (int)withBrake);
+  analogWrite(LEFT_MOTOR_PIN_B, (int)withBrake); 
+  rightMotorDirection = parked;
+  analogWrite(RIGHT_MOTOR_PIN_A, (int)withBrake);
+  analogWrite(RIGHT_MOTOR_PIN_B, (int)withBrake); 
+  spinDirection = notSpinning;
+  laneCenteringActive = false;
+  currentActionComplete = true;
+  leftMotorSteps = 0; // Reset to 0 incase of overflow
+  rightMotorSteps = 0;
+  resetMotorBias();
+  print("INFO: Motors Parked");
+}
+
+void rotate(float angle)
+{
+  rotateWithEncoders(angle);
+  //rotateWithGyro(angle);
+}
+
+void rotateWithEncoders(float angle)
+{
+  int distanceToTravel = abs(angle) * 2.52;  // Convert angle to steps
+  leftMotorStepsEnd = leftMotorSteps + distanceToTravel;
+  rightMotorStepsEnd = rightMotorSteps + distanceToTravel;
+  driveMotorsOpposite(angle > 0.0);
+}
+
+void rotateWithGyro(float angle)
+{
+  const float currentSpeed = ((leftMotorSpeed + rightMotorSpeed) / 2.0); // Used to scale angleOffset, as the faster you go the more error there is.
+  const float angleOffset = 0.009 * currentSpeed; //0.0101
+  gyroAngleEnd = gyroAngle - (angle * angleOffset);
+  driveMotorsOpposite(angle > 0.0);
   print("INFO: Motors Rotating: " + String(angle));
+}
+
+void collisionSolution()
+{
+    // Reverse a small amount and skip current action in buffer
+    Action newAction;
+    newAction.timestamp = millis();
+    newAction.type = ACTION_TYPE_REVERSE;
+    newAction.nCells = 0.15;
+    newAction.motor1Speed = 60;
+    newAction.motor2Speed = 60;
+    replaceCurrentAction(actionBuffer, newAction);
 }
 
 void startActionDelay(float delay_ms){
@@ -201,18 +252,20 @@ void startActionDelay(float delay_ms){
 void laneCenter()
 {
   resetMotorBias();
-  checkAllWalls();
   // Only if there is a wall either side try IR lane centering
   if(wallLeft && wallRight)
   {
-    const float kp = (leftMotorSpeed + rightMotorSpeed) / 800.0; // Proportional gain, from average motor speed
-    int left = getIRreading(LEFT_LED, 3) - IR_SENSOR_LEFT_RIGHT_BIAS;
-    int right = getIRreading(RIGHT_LED, 3) + IR_SENSOR_LEFT_RIGHT_BIAS;
-    int diff = left - right;
-    int correction = round(kp * diff);
-    if (abs(diff) > OFF_AXES_THRESHOLD) 
+    int left = getIRreading(LEFT_LED,2) - LC_LEFT_RIGHT_BIAS;
+    int right = getIRreading(RIGHT_LED,2) + LC_LEFT_RIGHT_BIAS;
+    signed int diff = left - right;  // Positive when needs to move left
+    unsigned int correction = abs(round(diff / LC_KP));
+
+    if(diff > LC_OFF_AXES_THRESHOLD) // Too far right, move left
     {
-      leftMotorBias -= correction;
+      leftMotorBias += correction;
+    }
+    else if(diff < (-1)*LC_OFF_AXES_THRESHOLD)  // Too far left, move right
+    {
       rightMotorBias += correction;
     }
     else
@@ -220,10 +273,30 @@ void laneCenter()
       resetMotorBias();
     }
   }
-  else
-  {
-    resetMotorBias();
-  }
   driveMotors();
+}
+
+
+void resetCollisionDetection()
+{
+  colDetcPrevStepCount = abs(leftMotorSteps + rightMotorSteps) / 2.0; 
+  colDetcPrevTime_ms = millis();
+}
+
+// Collision Detection using step count
+void detectCollisionWithSteps()
+{
+  if(millis() > (colDetcPrevTime_ms + COL_DETC_TIME_GAP_ms))
+  {
+    if(abs((leftMotorSteps + rightMotorSteps) / 2.0) < (colDetcPrevStepCount + COL_DETC_STEP_THRESHOLD))
+    {
+      // Collision Detected!
+      print("ERROR: Collision detected from steps!");
+      fatalError = true;
+      //collisionSolution(); // TODO: This is not working as exected yet
+    }
+    colDetcPrevStepCount = abs((leftMotorSteps + rightMotorSteps) / 2.0);
+    colDetcPrevTime_ms = millis();
+  }
 }
 

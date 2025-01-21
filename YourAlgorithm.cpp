@@ -10,8 +10,13 @@ int relativeDirection = NORTH;
 
 void setupAlgorithm()
 {
+  delay(500); 
+
   currentCell[X] = 0;
   currentCell[Y] = 0;
+
+  addBlindMoveForwardAction(0.5, 70);
+  addCheckWallsAction();
 }
 
 void loopAlgorithm()
@@ -20,32 +25,66 @@ void loopAlgorithm()
   {
       // ********* Un-comment the algorithm you wish to run *******
       mainAlgorithm();
-      // basicAlgo();
-      // demoSqaureAlgo();
-      // testAlgo();
+      //basicAlgo();
+      //testAlgo();
+      //oneSqrTest(100);
 
       // --- Hardware test algorithms ---
-      // testMotors();
-      // testIrLeds();
-      // testIrReadings();
+      //testMotors();
+      //testIrLeds();
+       //testIrReadings();
   }
   else if(startAlgorithm2)  // Set True after button 2 pressed
   {
-    testIrLeds();
+    //testIrLeds();
+    testIrReadings();
+    //testAlgo();
+    //oneSqrTest(50);
+    startAlgorithm = false;
+    //startAlgorithm2 = false;
   }
-}
   
+  // if(wallFrontClose){
+  //   ledOn();
+  // }else{
+  //   ledOff();
+  // }
+}
+ 
+
 void mainAlgorithm()
 {
   // *********   You can put your Maze-Solving Algorithm here   *********
+  if(currentActionComplete && isBufferEmpty(actionBuffer))
+  {
+    if(!wallFront)
+    {
+      addMoveForwardAction(0.5, 100);
+      addBlindMoveForwardAction(0.5, 100);
+      addCheckWallsAction();
+    }
+    else if(!wallRight)
+    {
+      addBlindMoveForwardAction(0.85, 70);
+      addRotateAction(90.0, 70);
+      addBlindMoveForwardAction(0.15, 70);
+      addCheckWallsAction();
+    }
+    else if(!wallLeft)
+    {
+      addBlindMoveForwardAction(0.85, 70);
+      addRotateAction(-90.0, 80);
+      addBlindMoveForwardAction(0.15, 70);
+      addCheckWallsAction();
+    }
+    else
+    {
+      startAlgorithm = false;
+      ledOn();
+    }
+  }
 
-
-
-
-
-
-  collisionDetectionActive = false;
-  startAlgorithm = false; // This line stops this function looping
+  collisionDetectionActive = true;
 }
 
 
@@ -81,6 +120,13 @@ void basicAlgo()
   collisionDetectionActive = true;
 }
 
+void oneSqrTest(int speed)
+{
+  addBlindMoveForwardAction(1, speed);
+  startAlgorithm = false;
+  startAlgorithm2 = false;
+}
+
 void demoSqaureAlgo()
 {
   // Goes in a square
@@ -93,9 +139,14 @@ void demoSqaureAlgo()
 
 void testAlgo()
 {
-  // You can use this func to test things out
+  addDelayAction(500.0); 
+  addRotateAction(-90.0, 70);
+  addDelayAction(500.0); 
+  addRotateAction(-90.0, 70);
+  //addDelayAction(1000.0); 
+  //addRotateAction(-90.0, 70);
 
-  startAlgorithm = false;
+  startAlgorithm2 = false;
 }
 
 

@@ -61,6 +61,9 @@ bool addAction(CircularBuffer &cb, Action action);
 // Get an action from the buffer
 bool getAction(CircularBuffer &cb, Action &action);
 
+// Replaces the current actoin with a new one
+void replaceCurrentAction(CircularBuffer &cb, Action action);
+
 // Functions to add actions to buffer
 void addBlindMoveForwardAction(float nCells, int speed);
 void addMoveForwardAction(float nCells, int speed);

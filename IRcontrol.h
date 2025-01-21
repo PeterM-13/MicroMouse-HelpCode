@@ -7,10 +7,11 @@
 void setupLEDs();
 void loopLEDs();
 
-int getIRreading(const int led, const int nReadings=3);
+int getIRreading(const int led, const int nReadings=1);
 void isWallFront();
 void isWallLeft();
 void isWallRight();
+void isWallFrontClose();
 void checkAllWalls();
 
 void testLed(const int led);

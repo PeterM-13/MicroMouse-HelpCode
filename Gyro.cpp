@@ -1,6 +1,6 @@
 #include "Gyro.h"
 
-const float COLLISION_THRESHOLD = 1.6; // in m/s²
+const float COLLISION_THRESHOLD = 1.8; // smaller = more sensitive
 
 float gyroAngle = 0.0;
 float gyroBiasZ = 0.0;
@@ -20,7 +20,7 @@ void setupGyro()
 
 void loopGyro()
 {
-  updateGyroData();
+  //updateGyroData();
 
   if (collisionDetectionActive)
   {
@@ -34,7 +34,7 @@ void calibrateGyro()
 {
   delay(100); // Allow time for user to move hand away from mouse
   print("INFO: Calibrating Gyro...");
-  const int numSamples = 1000;
+  const int numSamples = 100;
   float sumZ = 0.0;
   for (int i = 0; i < numSamples; i++) 
   {

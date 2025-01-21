@@ -31,9 +31,11 @@ void updateRightEncoder();
 void resetMotorBias();
 
 // Turns motors OFF
-void parkMotors();
+void parkMotors(bool withBrake=false);
 // Turns motors ON, rotating forwards
 void driveMotors();
+// Drives motros in opposite directions (for turning)
+void driveMotorsOpposite(bool clockwise);
 // Rotates both motors backwards
 void reverseMotors();
 // Sets both motor's speeds independenty
@@ -45,10 +47,18 @@ void moveForward(float nCells);
 void reverse(float nCells);
 // Turn on the spot
 void rotate(float angle);
+void rotateWithEncoders(float angle);
+void rotateWithGyro(float angle);
 
 void laneCenter();
 
+void resetCollisionDetection();
+void detectCollisionWithSteps();
+
 void startActionDelay(float delay_ms);
+
+// This is called if collision detected
+void collisionSolution();
 
 
 

@@ -42,7 +42,7 @@ void loop()
       switch (action.type) 
       {
         case ACTION_TYPE_MOVE_BASIC_FORWARDS:
-          print("ACTION: Basic Move Forwards");
+          print("ACTION: Blind Move Forwards");
           moveForward(action.nCells);
           break;
         case ACTION_TYPE_MOVE_FORWARDS:

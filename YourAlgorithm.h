@@ -14,6 +14,7 @@ void mainAlgorithm();
 void basicAlgo();
 void demoSqaureAlgo();
 void testAlgo();
+void oneSqrTest(int speed);
 
 void testMotors();
 void testIrLeds();

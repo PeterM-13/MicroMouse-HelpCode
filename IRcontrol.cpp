@@ -13,14 +13,15 @@ const int IR_LED_3_PIN = A5;
 const int IR_LED_4_PIN = A4;
 
 // Max IR reading limits to detect a wall
-const int IR_SENSOR_1_WALL_THRESHOLD = 900;
-const int IR_SENSOR_4_WALL_THRESHOLD = 900;
-const int IR_SENSOR_2_WALL_THRESHOLD = 990;
-const int IR_SENSOR_3_WALL_THRESHOLD = 990;
-const int IR_SENSOR_1_4_SIDE_WALL_THRESHOLD = 980;
+const int IR_SENSOR_1_WALL_THRESHOLD = 500;
+const int IR_SENSOR_2_WALL_THRESHOLD = 500;
+const int IR_SENSOR_3_WALL_THRESHOLD = 500;
+const int IR_SENSOR_4_WALL_THRESHOLD = 500;
+const int IR_SENSOR_1_4_SIDE_WALL_THRESHOLD = 500;
 
 const int IR_MAX_READING = 1024;
 const int IR_LIMIT = IR_MAX_READING * 0.5;
+const int IR_LED_ON_TIME_ms = 3;  // The time the LEDs are on to take a reading
 
 
 void setupLEDs()
@@ -66,11 +67,28 @@ void isWallRight()
   // Check the right facing sensor OR check the right forward sensor incase mouse askew
   wallRight = (getIRreading(RIGHT_LED) < IR_SENSOR_3_WALL_THRESHOLD) || (getIRreading(FRONT_LEFT_LED) > IR_SENSOR_1_4_SIDE_WALL_THRESHOLD && getIRreading(FRONT_RIGHT_LED) < IR_SENSOR_1_4_SIDE_WALL_THRESHOLD);
 }
+void isWallFrontClose()
+{
+  const int frontIRLimit = 300;
+  const int sideIRLimit = 700;
+  wallFrontClose = (getIRreading(RIGHT_LED) < sideIRLimit && getIRreading(LEFT_LED) < sideIRLimit && getIRreading(FRONT_LEFT_LED) < frontIRLimit && getIRreading(FRONT_LEFT_LED) < frontIRLimit);
+}
 void checkAllWalls()
 {
-  isWallFront();
-  isWallRight();
-  isWallLeft();
+  // isWallFront();
+  // isWallRight();
+  // isWallLeft();
+  // isWallFrontClose();
+  const int FL = getIRreading(FRONT_LEFT_LED);
+  const int FR = getIRreading(FRONT_RIGHT_LED);
+  const int L = getIRreading(LEFT_LED);
+  const int R = getIRreading(RIGHT_LED);
+  wallFront = (FL < IR_SENSOR_1_WALL_THRESHOLD && FR < IR_SENSOR_4_WALL_THRESHOLD);
+  wallLeft = (L < IR_SENSOR_2_WALL_THRESHOLD); //|| (FL < IR_SENSOR_1_4_SIDE_WALL_THRESHOLD && FR > IR_SENSOR_1_4_SIDE_WALL_THRESHOLD);
+  wallRight = (R < IR_SENSOR_3_WALL_THRESHOLD);// || (FL > IR_SENSOR_1_4_SIDE_WALL_THRESHOLD && FR < IR_SENSOR_1_4_SIDE_WALL_THRESHOLD);
+  const int frontIRLimit = 300;
+  const int sideIRLimit = 550;
+  wallFrontClose = (L < sideIRLimit && R < sideIRLimit && FL < frontIRLimit && FR < frontIRLimit);
 }
 
 int getIRreading(const int led, const int nReadings)
@@ -86,24 +104,28 @@ int getIRreading(const int led, const int nReadings)
       case FRONT_LEFT_LED:
         preReading = analogRead(IR_SENSOR_1_PIN);
         digitalWrite(IR_LED_1_PIN, HIGH);
+        delay(IR_LED_ON_TIME_ms);
         reading = analogRead(IR_SENSOR_1_PIN);
         digitalWrite(IR_LED_1_PIN, LOW);
         break;
       case LEFT_LED:
         preReading = analogRead(IR_SENSOR_2_PIN);
         digitalWrite(IR_LED_2_PIN, HIGH);
+        delay(IR_LED_ON_TIME_ms);
         reading = analogRead(IR_SENSOR_2_PIN);
         digitalWrite(IR_LED_2_PIN, LOW);
         break;
       case RIGHT_LED:
         preReading = analogRead(IR_SENSOR_3_PIN);
         digitalWrite(IR_LED_3_PIN, HIGH);
+        delay(IR_LED_ON_TIME_ms);
         reading = analogRead(IR_SENSOR_3_PIN);
         digitalWrite(IR_LED_3_PIN, LOW);
         break;
       case FRONT_RIGHT_LED:
         preReading = analogRead(IR_SENSOR_4_PIN);
         digitalWrite(IR_LED_4_PIN, HIGH);
+        delay(IR_LED_ON_TIME_ms);
         reading = analogRead(IR_SENSOR_4_PIN);
         digitalWrite(IR_LED_4_PIN, LOW);
         break;
