@@ -6,6 +6,16 @@ Here you will find the help code for MicroMouse.
 ## Contents
 <img src="https://github.com/user-attachments/assets/4a2ef373-2c49-4930-8519-a5ad0b24f1ef" alt="MicroMouse Title Page" align="right" height=250px/>
 
+## Key Changes & Updates
+- Added a 3ms delay when reading IR values in IRcontroll.cpp > getIRreading.
+This made a huge difference and almost trippled the granuality of the readings.
+- Improved lane centering.
+- Added collision detection using the step count.
+Where if I detect the wheels are not spinning when they should be, I stop.
+- Attempted a collisionSolution(), but not fully implemented this yet.
+This involved adding a new method to the action buffer to replace the current action with a new one.
+So if I detect a collision I could replace the current action with a 'reverse' action.
+
 - [Documentation](#documentation)
     - [Global Variables](#global-variables)
     - [Global Methods](#global-methods)
