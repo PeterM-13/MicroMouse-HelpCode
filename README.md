@@ -1,17 +1,20 @@
 <h1 style="text-decoration: none;">Leonardo MicroMouse Help Code</h1>
 <img height=80px align='right' src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Arduino_Logo.svg/720px-Arduino_Logo.svg.png'/>
-Here you will find the help code for MicroMouse.
-<br>Please also refer to the MicroMouse user guide for more infomation.
+Here you will find my progress with maze routing.
 
 ## Key Changes & Updates
 - Added a 3ms delay when reading IR values in IRcontroll.cpp > getIRreading.
 This made a huge difference and almost trippled the granuality of the readings.
-- Improved lane centering.
+- Updated lane centering.
 - Added collision detection using the step count.
 Where if I detect the wheels are not spinning when they should be, I stop.
 - Attempted a collisionSolution(), but not fully implemented this yet.
 This involved adding a new method to the action buffer to replace the current action with a new one.
 So if I detect a collision I could replace the current action with a 'reverse' action.
+- Added a 'wallFrontClose' global variable.
+This indicates if a wall is directly infront of the mouse, when even the side sensors detect the front wall.
+- Removed gyro turing, replaced with turning using the step count.
+- Updated 'checkAllWalls' method to be more efficient.
 
 ## Contents
 <img src="https://github.com/user-attachments/assets/4a2ef373-2c49-4930-8519-a5ad0b24f1ef" alt="MicroMouse Title Page" align="right" height=250px/>
