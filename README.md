@@ -56,6 +56,20 @@ bool fatalError = false;
 bool collisionDetectionActive = false;
 // When `true`, monitors the IMU and sets `fatalError` to `true` if IMU data goes above threshold, indicating a collision. 
 // Threshold set in `Gyro.cpp` line 3.
+
+bool laneCenteringActive = false;
+// When `true`, enables lane centering. Also enables contunuous IR sensor readings.
+
+bool readAllSensorsOnce = false;
+// When `true`, gets a reading from each IR sensor once.
+
+bool readAllSensorsCont = false;
+// When `true`, continuously gets readings from the IR sensors.
+
+bool updateGyroData = false;
+// When `true`, continuously gets data from gyro, and updates Z angle.
+// This is quite intensive, and slows down the program loop. So only enables when required, like when turning.
+// But gyro seems inacurate anyway. So not being used.
 ```
 
 ### Global Methods
@@ -69,6 +83,9 @@ void ledOn();
 
 void ledOff();
 // Turns the Arduino's built in LED off.
+
+void printLoopTime();
+// If called from a `loop`ing function, it prints the time to complete 1 cycle.
 ```
 
 ### Actions
@@ -87,9 +104,17 @@ void addMoveForwardAction(float nCells, int speed);
 // Stops after traveling the number of cells `nCells`. 
 // With IR detection and lane centering.
 
-void addRotateAction(int angle, int speed);
-// Rotates the mouse by `angle` at `speed`. 
-// Positive `angle` rotates clockwise, negative `angle` rotates anticlockwise.
+void addTurnRightAction(int speed);
+// Rotates the mouse clockwise 90˙ at `speed`.
+// Simply rotates the wheels in oppotise directions.
+
+void addTurnLeftAction(int speed);
+// Rotates the mouse anti-clockwise 90˙ at `speed`.
+// Simply rotates the wheels in oppotise directions.
+
+void addTurnAroundAction(int speed);
+// Rotates the mouse 180˙ at `speed`.
+// Will rotate clockwise/anti-clockwise depending which wall it's closest to, to avoid collision.
 
 void addParkAction();
 // Stops both motors and sets speed to zero.
@@ -101,6 +126,13 @@ void addBlindReverseAction(float nCells, int speed);
 
 void addCheckWallsAction();
 // Updates the global boolean variables `wallFront`, `wallBack`, `wallLeft`, `wallRight`.
+
+void addStartCheckingWallsAction();
+// As the process of reading the IR sensors is async, this action starts the process.
+// Once called, each sensor will be read from continuously until a `checkAllWallsAction` is called.
+
+void addIrMonitoringAction(int speed);
+// Drives forwards at `speed` unitl front wall close - using front IR sensors.
 
 void addDelayAction(float delay_ms);
 // Causes a pause for `delay_ms` milliseconds.
@@ -128,15 +160,21 @@ bool getAction(CircularBuffer &cb, Action &action);
 // Sets `action` to the next action from the circular buffer `cb` and removes the action from the buffer. 
 // Returns `false` if buffer is empty.
 
+Action* seeNextAction(CircularBuffer &cb);
+// Returns the next action in the buffer.
+
 void clearBuffer(CircularBuffer &cb);
 // Empties the buffer `cb`.
+
+void replaceCurrentAction(CircularBuffer &cb, Action action);
+// Replaces the currenct action with the new `action`.
 ```
 
 <br>
 
 ## Getting Started
 Create your maze-solving algorthim in `YourAlgorithm.cpp`. <br>
-Make use of the mathods described above, to add actins to the `actionBuffer`.
+Make use of the mathods described above, to add actions to the `actionBuffer`.
 
 <br>
 
