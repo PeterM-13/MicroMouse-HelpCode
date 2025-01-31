@@ -12,7 +12,7 @@ void loopGyro();
 
 void calibrateGyro();
 
-void updateGyroData();
+void updateGyroDataValues();
 
 void detectCollision();
 

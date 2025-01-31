@@ -3,6 +3,7 @@
 
 #include "Globals.h"
 #include "IRcontrol.h"
+#include "MotorControl.h"
 
 extern bool startAlgorithm;
 extern bool startAlgorithm2;

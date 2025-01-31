@@ -12,7 +12,11 @@ bool wallFrontClose = false;
 
 // Progrm Variables
 bool fatalError = false; // If True causes mouse to stop
-bool collisionDetectionActive = false;
+bool collisionDetectionActive = true;
+bool laneCenteringActive = false;
+bool readAllSensorsOnce = false;
+bool readAllSensorsCont = false;
+bool updateGyroData = false;
 
 void setupGlobals()
 {  
@@ -45,4 +49,13 @@ void ledOn()
 void ledOff()
 {
   digitalWrite(LED_BUILTIN, LOW);
+}
+
+
+long prevLoopTime_us = 0;
+void printLoopTime()
+{
+  const long currentLoopTime_us = micros();
+  print(String(currentLoopTime_us - prevLoopTime_us));
+  prevLoopTime_us = currentLoopTime_us;
 }

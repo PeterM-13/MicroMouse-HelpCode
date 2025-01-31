@@ -38,7 +38,10 @@ void loop()
     if(getAction(actionBuffer, action)) 
     {
       currentActionComplete = false;
-      setSpeed(action.motor1Speed, action.motor2Speed);
+      if(action.motor1Speed >= 0 && action.motor2Speed >= 0)
+      {
+        setSpeed(action.motor1Speed, action.motor2Speed);
+      }
       switch (action.type) 
       {
         case ACTION_TYPE_MOVE_BASIC_FORWARDS:
@@ -50,9 +53,22 @@ void loop()
           laneCenteringActive = true;
           moveForward(action.nCells);
           break;
-        case ACTION_TYPE_ROTATE:
-          print("ACTION: Rotate");
-          rotate(action.angle);
+        case ACTION_TYPE_TURN_LEFT:
+          print("ACTION: Turn left");
+          turnLeft();
+          break;
+        case ACTION_TYPE_TURN_RIGHT:
+          print("ACTION: Turn right");
+          turnRight();
+          break;
+        case ACTION_TYPE_TURN_AROUND:
+          print("ACTION: Turn around");
+          turnAround();
+          break;
+        case ACTION_TYPE_IR_MONITOR:
+          print("ACTION: IR monitoring");
+          readAllSensorsCont = true;
+          startIrMonitoring();
           break;
         case ACTION_TYPE_PARK:
           print("ACTION: Park");
@@ -60,11 +76,17 @@ void loop()
           break;
         case ACTION_TYPE_REVERSE:
           print("ACTION: Reverse");
+          collisionDetectionActive = false;
           reverse(action.nCells);
           break;
         case ACTION_TYPE_CHECK_WALLS:
           print("ACTION: Check All Walls");
           checkAllWalls();
+          currentActionComplete = true;
+          break;
+        case ACTION_TYPE_START_WALLS_CHECK:
+          print("ACTION: Start Check All Walls");
+          readAllSensorsCont = true;
           currentActionComplete = true;
           break;
         case ACTION_TYPE_DELAY:

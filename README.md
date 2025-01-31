@@ -1,23 +1,26 @@
 <h1 style="text-decoration: none;">Leonardo MicroMouse Help Code</h1>
 <img height=80px align='right' src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Arduino_Logo.svg/720px-Arduino_Logo.svg.png'/>
-Here you will find my progress with maze routing.
+Here you will find the help code for MicroMouse.
+<br>Please also refer to the MicroMouse user guide for more infomation.
+
+## Contents
+<img src="https://github.com/user-attachments/assets/4a2ef373-2c49-4930-8519-a5ad0b24f1ef" alt="MicroMouse Title Page" align="right" height=250px/>
 
 ## Key Changes & Updates
-- Added a 3ms delay when reading IR values in IRcontroll.cpp > getIRreading.
+- Made IR reading ansyc with 3ms delay. Rest of program continue in that time.
 This made a huge difference and almost trippled the granuality of the readings.
-- Updated lane centering.
+- Improved lane centering.
 - Added collision detection using the step count.
 Where if I detect the wheels are not spinning when they should be, I stop.
 - Attempted a collisionSolution(), but not fully implemented this yet.
 This involved adding a new method to the action buffer to replace the current action with a new one.
 So if I detect a collision I could replace the current action with a 'reverse' action.
-- Added a 'wallFrontClose' global variable.
-This indicates if a wall is directly infront of the mouse, when even the side sensors detect the front wall.
-- Removed gyro turing, replaced with turning using the step count.
-- Updated 'checkAllWalls' method to be more efficient.
-
-## Contents
-<img src="https://github.com/user-attachments/assets/4a2ef373-2c49-4930-8519-a5ad0b24f1ef" alt="MicroMouse Title Page" align="right" height=250px/>
+- Added `irMonitoring` action, to drive forwards until an IR reading is detected.
+This is used just before turning to ensure right distance from wall infront.
+- Added ability to turn around when reached a dead-end. It reverses against the wall behind to re-aligh.
+I added a `turnAround` action to enable this. It turns around in the direction away from the closest wall to avoid a collision.
+- Added designated `turnLeft` and `turnRight` actions. 
+Removed the `rotate` action, as I found a different number of steps required for each.
 
 - [Documentation](#documentation)
     - [Global Variables](#global-variables)

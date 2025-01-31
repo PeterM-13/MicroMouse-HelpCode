@@ -5,18 +5,26 @@ const int IR_SENSOR_1_PIN = A0;
 const int IR_SENSOR_2_PIN = A1;
 const int IR_SENSOR_3_PIN = A2;
 const int IR_SENSOR_4_PIN = A3;
+const int IR_SENSORS[N_SENSORS] = {IR_SENSOR_1_PIN, IR_SENSOR_2_PIN, IR_SENSOR_3_PIN, IR_SENSOR_4_PIN};
 
 // IR LED Pins
 const int IR_LED_1_PIN = A7;
 const int IR_LED_2_PIN = A6;
 const int IR_LED_3_PIN = A5;
 const int IR_LED_4_PIN = A4;
+const int IR_LED_PINS[4] = {IR_LED_1_PIN, IR_LED_2_PIN, IR_LED_3_PIN, IR_LED_4_PIN};
+
+int irReadings[N_SENSORS][3]; // 4 sensors // 0 = last reading, 1 = last ambient reading, 2 = time end
+int currentSensor = 3; // The sensor currently being read from
+bool prevIrReadEnded = true;
+//bool readAllSensors = false;
+bool checkedIrReadings = false;
 
 // Max IR reading limits to detect a wall
-const int IR_SENSOR_1_WALL_THRESHOLD = 500;
-const int IR_SENSOR_2_WALL_THRESHOLD = 500;
-const int IR_SENSOR_3_WALL_THRESHOLD = 500;
-const int IR_SENSOR_4_WALL_THRESHOLD = 500;
+const int IR_SENSOR_1_WALL_THRESHOLD = 400;
+const int IR_SENSOR_2_WALL_THRESHOLD = 100;
+const int IR_SENSOR_3_WALL_THRESHOLD = 100;
+const int IR_SENSOR_4_WALL_THRESHOLD = 400;
 const int IR_SENSOR_1_4_SIDE_WALL_THRESHOLD = 500;
 
 const int IR_MAX_READING = 1024;
@@ -48,100 +56,66 @@ void setupLEDs()
 
 void loopLEDs()
 {
-  ;
+  if(readAllSensorsOnce || readAllSensorsCont)
+  {
+    if(prevIrReadEnded) // If finished reading prev sensor
+    {
+      currentSensor ++;
+      if(currentSensor >= N_SENSORS) // Reset count if above 3
+      {
+        currentSensor = 0;
+      }
+      prevIrReadEnded = false;
+      startIrReading(currentSensor);
+    }
+    else  // Prev reading timer not ended yet
+    {
+      if(micros() >= irReadings[currentSensor][TIME])  // Check if timer should be up
+      {
+        stopIrReading(currentSensor); // Store value
+        prevIrReadEnded = true;
+        if(currentSensor == 3)
+        {
+          readAllSensorsOnce = false;
+        }
+      }
+    }
+  }
+  else if(laneCenteringActive)
+  {
+    // Read all sensors constantly if laneCentering, or next action is blindMoveForward.
+    readAllSensorsOnce = true;
+  }
 }
 
-
-void isWallFront()
-{
-  // Check the 2 Forward facing IR sensors
-  wallFront = (getIRreading(FRONT_LEFT_LED) < IR_SENSOR_1_WALL_THRESHOLD && getIRreading(FRONT_RIGHT_LED) < IR_SENSOR_4_WALL_THRESHOLD);
-}
-void isWallLeft()
-{
-  // Check the left facing sensor OR check the left forward sensor incase mouse askew
-  wallLeft = (getIRreading(LEFT_LED) < IR_SENSOR_2_WALL_THRESHOLD) || (getIRreading(FRONT_LEFT_LED) < IR_SENSOR_1_4_SIDE_WALL_THRESHOLD && getIRreading(FRONT_RIGHT_LED) > IR_SENSOR_1_4_SIDE_WALL_THRESHOLD);
-}
-void isWallRight()
-{
-  // Check the right facing sensor OR check the right forward sensor incase mouse askew
-  wallRight = (getIRreading(RIGHT_LED) < IR_SENSOR_3_WALL_THRESHOLD) || (getIRreading(FRONT_LEFT_LED) > IR_SENSOR_1_4_SIDE_WALL_THRESHOLD && getIRreading(FRONT_RIGHT_LED) < IR_SENSOR_1_4_SIDE_WALL_THRESHOLD);
-}
-void isWallFrontClose()
-{
-  const int frontIRLimit = 300;
-  const int sideIRLimit = 700;
-  wallFrontClose = (getIRreading(RIGHT_LED) < sideIRLimit && getIRreading(LEFT_LED) < sideIRLimit && getIRreading(FRONT_LEFT_LED) < frontIRLimit && getIRreading(FRONT_LEFT_LED) < frontIRLimit);
-}
 void checkAllWalls()
 {
-  // isWallFront();
-  // isWallRight();
-  // isWallLeft();
-  // isWallFrontClose();
-  const int FL = getIRreading(FRONT_LEFT_LED);
-  const int FR = getIRreading(FRONT_RIGHT_LED);
-  const int L = getIRreading(LEFT_LED);
-  const int R = getIRreading(RIGHT_LED);
-  wallFront = (FL < IR_SENSOR_1_WALL_THRESHOLD && FR < IR_SENSOR_4_WALL_THRESHOLD);
-  wallLeft = (L < IR_SENSOR_2_WALL_THRESHOLD); //|| (FL < IR_SENSOR_1_4_SIDE_WALL_THRESHOLD && FR > IR_SENSOR_1_4_SIDE_WALL_THRESHOLD);
-  wallRight = (R < IR_SENSOR_3_WALL_THRESHOLD);// || (FL > IR_SENSOR_1_4_SIDE_WALL_THRESHOLD && FR < IR_SENSOR_1_4_SIDE_WALL_THRESHOLD);
+  wallFront = (irReadings[FRONT_LEFT_LED][0] < IR_SENSOR_1_WALL_THRESHOLD && irReadings[FRONT_RIGHT_LED][0] < IR_SENSOR_4_WALL_THRESHOLD);
+  wallLeft = (irReadings[LEFT_LED][0] < IR_SENSOR_2_WALL_THRESHOLD); //|| (FL < IR_SENSOR_1_4_SIDE_WALL_THRESHOLD && FR > IR_SENSOR_1_4_SIDE_WALL_THRESHOLD);
+  wallRight = (irReadings[RIGHT_LED][0] < IR_SENSOR_3_WALL_THRESHOLD);// || (FL > IR_SENSOR_1_4_SIDE_WALL_THRESHOLD && FR < IR_SENSOR_1_4_SIDE_WALL_THRESHOLD);
   const int frontIRLimit = 300;
   const int sideIRLimit = 550;
-  wallFrontClose = (L < sideIRLimit && R < sideIRLimit && FL < frontIRLimit && FR < frontIRLimit);
+  wallFrontClose = (irReadings[LEFT_LED][0] < sideIRLimit && irReadings[RIGHT_LED][0] < sideIRLimit && irReadings[FRONT_LEFT_LED][0] < frontIRLimit && irReadings[FRONT_RIGHT_LED][0] < frontIRLimit);
+  checkedIrReadings = true;
 }
 
-int getIRreading(const int led, const int nReadings)
+
+
+void startIrReading(const int led)
 {
-  int readingTotal = 1;
-  int avgReading;
-  int preReading;
-  int reading;
-  for(int i=0; i < nReadings; i++)
-  {
-    switch(led)
-    {
-      case FRONT_LEFT_LED:
-        preReading = analogRead(IR_SENSOR_1_PIN);
-        digitalWrite(IR_LED_1_PIN, HIGH);
-        delay(IR_LED_ON_TIME_ms);
-        reading = analogRead(IR_SENSOR_1_PIN);
-        digitalWrite(IR_LED_1_PIN, LOW);
-        break;
-      case LEFT_LED:
-        preReading = analogRead(IR_SENSOR_2_PIN);
-        digitalWrite(IR_LED_2_PIN, HIGH);
-        delay(IR_LED_ON_TIME_ms);
-        reading = analogRead(IR_SENSOR_2_PIN);
-        digitalWrite(IR_LED_2_PIN, LOW);
-        break;
-      case RIGHT_LED:
-        preReading = analogRead(IR_SENSOR_3_PIN);
-        digitalWrite(IR_LED_3_PIN, HIGH);
-        delay(IR_LED_ON_TIME_ms);
-        reading = analogRead(IR_SENSOR_3_PIN);
-        digitalWrite(IR_LED_3_PIN, LOW);
-        break;
-      case FRONT_RIGHT_LED:
-        preReading = analogRead(IR_SENSOR_4_PIN);
-        digitalWrite(IR_LED_4_PIN, HIGH);
-        delay(IR_LED_ON_TIME_ms);
-        reading = analogRead(IR_SENSOR_4_PIN);
-        digitalWrite(IR_LED_4_PIN, LOW);
-        break;
-    }
-    // If too much IR when inactive, can't trust reading when active.
-    // if(preReading < IR_LIMIT)
-    // {
-    //   return -1;
-    // }
-    int ambientLight = IR_MAX_READING - preReading;
-
-    readingTotal += (reading + ambientLight);
-  }
-  avgReading = round(readingTotal / nReadings);
-  return avgReading;
+  const int ambientLight = analogRead(IR_SENSORS[led]); // Pre-read, for ambiant light
+  irReadings[led][AMBIENT_VALUE] = IR_MAX_READING - ambientLight;
+  digitalWrite(IR_LED_PINS[led], HIGH); // LED on
+  irReadings[led][TIME] = micros() + IR_LED_ON_TIME_ms*1000;  // Time the LED should turn off
 }
+
+void stopIrReading(const int led)
+{ 
+  const int reading = analogRead(IR_SENSORS[led]); 
+  irReadings[led][IR_VALUE] = reading + irReadings[led][AMBIENT_VALUE]; // Store value with ambient light added
+  digitalWrite(IR_LED_PINS[led], LOW); // LED off
+}
+
 
 
 // Turns the selected LED ON / OFF for 1 second

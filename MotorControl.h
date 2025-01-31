@@ -49,6 +49,11 @@ void reverse(float nCells);
 void rotate(float angle);
 void rotateWithEncoders(float angle);
 void rotateWithGyro(float angle);
+void turnRight();
+void turnLeft();
+void turnAround();
+
+void startIrMonitoring();
 
 void laneCenter();
 
@@ -60,6 +65,6 @@ void startActionDelay(float delay_ms);
 // This is called if collision detected
 void collisionSolution();
 
-
+void laneCenterPID();
 
 #endif // Motor_Control_H

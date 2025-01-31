@@ -20,7 +20,10 @@ extern bool wallFront;
 extern bool wallFrontClose;
 extern bool fatalError;
 extern bool collisionDetectionActive;
-
+extern bool laneCenteringActive;
+extern bool readAllSensorsOnce;
+extern bool readAllSensorsCont; // continuously
+extern bool updateGyroData;
 
 // ------------- Define Global Functions ----------
 void setupGlobals();
@@ -28,16 +31,21 @@ void setupGlobals();
 void print(String text, int priority = 1);
 void ledOn();
 void ledOff();
-
+void printLoopTime();
 
 // ------------- Define Global Type(s) -------------
 enum LEDs
 {
-  FRONT_LEFT_LED = 1,
-  LEFT_LED = 2,
-  RIGHT_LED = 3,
-  FRONT_RIGHT_LED = 4,
+  FRONT_LEFT_LED = 0,
+  LEFT_LED = 1,
+  RIGHT_LED = 2,
+  FRONT_RIGHT_LED = 3,
 };
-
+enum irReadingsIndexes
+{
+  IR_VALUE = 0, // Most recent IR value
+  AMBIENT_VALUE = 1,  // Most recent recoring of ambient light
+  TIME = 2, // Time to turn LED off and reord results.
+};
 
 #endif // GLOBALS_H

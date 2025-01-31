@@ -64,6 +64,19 @@ void clearBuffer(CircularBuffer &cb)
   cb.count = 0;
 }
 
+Action* seeNextAction(CircularBuffer &cb)
+{
+  if (!isBufferEmpty(cb) && !currentActionComplete)
+  {
+    return &cb.buffer[cb.tail + 1];
+  } 
+  else
+  {
+    return NULL;
+  }
+}
+
+
 void replaceCurrentAction(CircularBuffer &cb, Action action)
 {
   if (isBufferEmpty(cb)) 
@@ -103,14 +116,31 @@ void addMoveForwardAction(float nCells, int speed)
   newAction.motor2Speed = speed;
   addAction(actionBuffer, newAction);
 }
-void addRotateAction(int angle, int speed)
+void addTurnLeftAction(int speed)
 {
   Action newAction;
   newAction.timestamp = millis();
-  newAction.type = ACTION_TYPE_ROTATE;
+  newAction.type = ACTION_TYPE_TURN_LEFT;
   newAction.motor1Speed = speed;
   newAction.motor2Speed = speed;
-  newAction.angle = angle;
+  addAction(actionBuffer, newAction);
+}
+void addTurnRightAction(int speed)
+{
+  Action newAction;
+  newAction.timestamp = millis();
+  newAction.type = ACTION_TYPE_TURN_RIGHT;
+  newAction.motor1Speed = speed;
+  newAction.motor2Speed = speed;
+  addAction(actionBuffer, newAction);
+}
+void addTurnAroundAction(int speed)
+{
+  Action newAction;
+  newAction.timestamp = millis();
+  newAction.type = ACTION_TYPE_TURN_AROUND;
+  newAction.motor1Speed = speed;
+  newAction.motor2Speed = speed;
   addAction(actionBuffer, newAction);
 }
 void addParkAction()
@@ -132,6 +162,24 @@ void addBlindReverseAction(float nCells, int speed)
   newAction.motor2Speed = speed;
   addAction(actionBuffer, newAction);
 }
+void addIrMonitoringAction(int speed)
+{
+  Action newAction;
+  newAction.timestamp = millis();
+  newAction.type = ACTION_TYPE_IR_MONITOR;
+  newAction.motor1Speed = speed;
+  newAction.motor2Speed = speed;
+  addAction(actionBuffer, newAction);
+}
+void addStartCheckingWallsAction()
+{
+  Action newAction;
+  newAction.timestamp = millis();
+  newAction.type = ACTION_TYPE_START_WALLS_CHECK;
+  newAction.motor1Speed = -1;
+  newAction.motor2Speed = -1;
+  addAction(actionBuffer, newAction);
+}
 void addCheckWallsAction()
 {
   Action newAction;
@@ -143,5 +191,7 @@ void addDelayAction(float delay_ms){
   Action newAction;
   newAction.timestamp = delay_ms;
   newAction.type = ACTION_TYPE_DELAY;
+  newAction.motor1Speed = -1;
+  newAction.motor2Speed = -1;
   addAction(actionBuffer, newAction);
 }

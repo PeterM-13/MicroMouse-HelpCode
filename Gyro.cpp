@@ -1,6 +1,6 @@
 #include "Gyro.h"
 
-const float COLLISION_THRESHOLD = 1.8; // smaller = more sensitive
+const float COLLISION_THRESHOLD = 1.9; // smaller = more sensitive
 
 float gyroAngle = 0.0;
 float gyroBiasZ = 0.0;
@@ -20,7 +20,10 @@ void setupGyro()
 
 void loopGyro()
 {
-  //updateGyroData();
+  if(updateGyroData)
+  {
+    updateGyroDataValues();
+  }
 
   if (collisionDetectionActive)
   {
@@ -28,13 +31,16 @@ void loopGyro()
   }
 }
 
-
+float maxValue = 0.0;
+float minValue = 2.0;
+float avgOffset = 0.0;
 // During setup, calculate the bias
 void calibrateGyro() 
 {
   delay(100); // Allow time for user to move hand away from mouse
   print("INFO: Calibrating Gyro...");
-  const int numSamples = 100;
+  const float numSamples = 1000.0;
+ // float maxValue = 0.0;
   float sumZ = 0.0;
   for (int i = 0; i < numSamples; i++) 
   {
@@ -42,25 +48,35 @@ void calibrateGyro()
     {
       float x, y, z;
       IMU.readGyroscope(x, y, z);
-      sumZ += z;
-      delay(5);  // Small delay for sampling
+      if(z > maxValue)
+      {
+        maxValue = z;
+      }
+      if(z < minValue)
+      {
+        minValue = z;
+      }
+      sumZ =+ z;
     }
   }
-  gyroBiasZ = sumZ / numSamples; 
+  avgOffset = sumZ / numSamples; 
+  maxValue = maxValue * 1.1;
+  minValue = minValue * 0.1;
   print("INFO: Gyro Calibrated, offset by: " + String(gyroBiasZ));
 }
 
-void updateGyroData()
+void updateGyroDataValues()
 {
   if (IMU.gyroscopeAvailable()) 
   {
     float x, y, z;
-    long currentGyroTime = millis();
-    float dt = (currentGyroTime - lastGyroTime) / 1000.0; // Time difference in seconds
-    lastGyroTime = currentGyroTime;
+    float dt = (micros() - lastGyroTime) / 1000000.0; // Time difference in seconds
     IMU.readGyroscope(x, y, z);
-    z -= gyroBiasZ;  // Apply bias correction
-    gyroAngle += z * dt;
+    lastGyroTime = micros();
+    if(z > maxValue || z < minValue)
+    {
+      gyroAngle += ((z-avgOffset) * dt);
+    }
     print("GyroAngle: "+ String(gyroAngle), 2);
   }
 }
