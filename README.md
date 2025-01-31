@@ -23,6 +23,7 @@ Removed the `rotate` action, as I found a different number of steps required for
 
 ## Contents
 <img src="https://github.com/user-attachments/assets/4a2ef373-2c49-4930-8519-a5ad0b24f1ef" alt="MicroMouse Title Page" align="right" height=250px/>
+
 - [Documentation](#documentation)
     - [Global Variables](#global-variables)
     - [Global Methods](#global-methods)
