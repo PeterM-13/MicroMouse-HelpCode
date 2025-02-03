@@ -1,14 +1,5 @@
 #include "YourAlgorithm.h"
 
-/*
-  Why turn left??
-  Test IR readings at juction??
-  Test monitoring action from start?
-
-  Test Gyro
-
-*/
-
 bool startAlgorithm = false;
 bool startAlgorithm2 = false;
 
