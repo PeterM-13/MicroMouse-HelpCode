@@ -4,6 +4,7 @@
 #include "Globals.h"
 #include "IRcontrol.h"
 #include "Gyro.h"
+#include "Navigation.h"
 
 enum motorDirection
 {

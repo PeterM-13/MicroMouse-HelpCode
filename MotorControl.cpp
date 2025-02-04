@@ -18,7 +18,7 @@ int leftMotorBias = LEFT_MOTOR_BIAS;
 int rightMotorBias = RIGHT_MOTOR_BIAS;
 
 // Number of encoder cycles to move one cell, found with trial and error currently
-const int CELL_DISTANCE = 565; 
+const int CELL_DISTANCE = 585; 
 
 // Constansts used for lane centering (LC) (Adjust with trail and error)
 const int LC_OFF_AXES_THRESHOLD = 2; // How tight to the middle of the lane it stays. Lower = more sensitive.
@@ -41,7 +41,7 @@ float gyroAngleEnd = 0.0;
 long actionDelayEnd = 0.0;
 bool actionDelayActive = false;
 bool irMonitoringActive = false;
-int irMonitoringEnd = 48;
+int irMonitoringEnd = 47;
 
 // Variables used for collision detection
 long colDetcPrevTime_ms = 0; // Last time collisions were detected
@@ -238,6 +238,7 @@ void turnRight()
   int distanceToTravel = 90 * 2.42;  // Convert angle to steps
   leftMotorStepsEnd = leftMotorSteps + distanceToTravel;
   rightMotorStepsEnd = rightMotorSteps + distanceToTravel;
+  navRight();
   driveMotorsOpposite(true);
 }
 void turnLeft()
@@ -245,10 +246,13 @@ void turnLeft()
   int distanceToTravel = 90 * 2.52;  // Convert angle to steps
   leftMotorStepsEnd = leftMotorSteps + distanceToTravel;
   rightMotorStepsEnd = rightMotorSteps + distanceToTravel;
+  navLeft();
   driveMotorsOpposite(false);
 }
 void turnAround()
 {
+  navRight();
+  navRight();
   if(irReadings[LEFT_LED][IR_VALUE] < irReadings[RIGHT_LED][IR_VALUE]) // Closer to left wall, so turn right (clockwise)
   {
     int distanceToTravel = 180 * 2.42;  // Convert angle to steps
@@ -340,7 +344,7 @@ void detectCollisionWithSteps()
   }
 }
 
-
+const int MAX_CORRECTION = 30;
 void laneCenter()
 {
   resetMotorBias();
@@ -352,8 +356,8 @@ void laneCenter()
     const int left = irReadings[LEFT_LED][IR_VALUE] - LC_LEFT_RIGHT_BIAS;
     const int right = irReadings[RIGHT_LED][IR_VALUE] + LC_LEFT_RIGHT_BIAS;
     const signed int diff = left - right;  // Positive when needs to move left
-    const signed int correction = abs(round(diff));  // LC_KP
-
+    signed int correction = abs(round(diff));
+    correction = min(abs(correction), MAX_CORRECTION) * (correction/correction);
     if(diff > LC_OFF_AXES_THRESHOLD) // Too far right, move left
     {
       leftMotorBias -= correction;

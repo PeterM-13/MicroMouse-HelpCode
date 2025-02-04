@@ -1,25 +1,24 @@
 #include "YourAlgorithm.h"
 
+/* TODO
+
+ Use only on sensor on lane centering
+
+ Compare front values before a turn?
+
+ steps!? 
+ Constantly monitor IR -> record last wall gap. Reset step.
+
+*/
+
 bool startAlgorithm = false;
 bool startAlgorithm2 = false;
-
-// These vars are currently unused, but might help :)
-int currentCell[2];
-int relativeDirection = NORTH;
-
 
 void setupAlgorithm()
 {
   delay(500); // Allow button press
 
-  currentCell[X] = 0;
-  currentCell[Y] = 0;
-
-
-  addBlindMoveForwardAction(0.3, 70);
-  addStartCheckingWallsAction();
-  addBlindMoveForwardAction(0.2, 70);
-  addCheckWallsAction();
+  startOffsetAction();
 }
 
 
@@ -29,18 +28,12 @@ void loopAlgorithm()
   if(startAlgorithm) // Set True after button 1 pressed
   {
       mainAlgorithm();
-      //testAlgo();
   }
   else if(startAlgorithm2)  // Set True after button 2 pressed
   {
-     addStartCheckingWallsAction();
-     addDelayAction(100);
-     addIrMonitoringAction(80);
-    //testIrLeds();
-    //testIrReadings();
-    //testMotors();
-    //testAlgo();
-    //oneSqrTest(100);
+     //addStartCheckingWallsAction();
+     //addDelayAction(100);
+     //addIrMonitoringAction(80);
     startAlgorithm = false;
     startAlgorithm2 = false;
   }
@@ -49,65 +42,99 @@ void loopAlgorithm()
 
 void mainAlgorithm()
 {
-  
   if(currentActionComplete && isBufferEmpty(actionBuffer))
   {
+    if (checkMiddle())
+    {
+      startAlgorithm = false;
+      ledOn();
+      return;
+    }
+
     if(!wallFront)
     {
-      addMoveForwardAction(0.5, 100);
-      addBlindMoveForwardAction(0.3, 100);
-      addStartCheckingWallsAction();
-      addBlindMoveForwardAction(0.2, 100);
-      addCheckWallsAction();
+      if(!wallRight && (bool)random(0,2))
+      {
+        turnRightAction();
+      }
+      else if(!wallLeft && (bool)random(0,2))
+      {
+        turnLeftAction();
+      }
+      else
+      {
+        moveForwardAction();
+      }
     }
     else if(!wallRight)
     {
-      addIrMonitoringAction(70); // Moves until IR reading of 70 on Front sensors (so close to wall)
-      addTurnRightAction(80);
-      addStartCheckingWallsAction();
-      addBlindMoveForwardAction(0.85, 70);
-      addCheckWallsAction();
+      turnRightAction();
     }
     else if(!wallLeft)
     {
-      addIrMonitoringAction(70); // Moves until IR reading of 70 on Front sensors (so close to wall)
-      addTurnLeftAction(80);
-      addStartCheckingWallsAction();
-      addBlindMoveForwardAction(0.85, 70);
-      addCheckWallsAction();
+      turnLeftAction();
     }
     else // Reached dead end, turn around
     {
-      addIrMonitoringAction(70);
-      addTurnAroundAction(80);
-      addBlindReverseAction(0.5, 68);
-      // Restart
-      addBlindMoveForwardAction(0.3, 70);
-      addStartCheckingWallsAction();
-      addBlindMoveForwardAction(0.2, 70);
-      addCheckWallsAction();
+      turnAroundAction();
     }
   }
 }
 
 
-void oneSqrTest(int speed)
+
+void startOffsetAction()
 {
-  addBlindMoveForwardAction(1, speed);
-  startAlgorithm = false;
-  startAlgorithm2 = false;
+  addBlindMoveForwardAction(0.3, 70);
+  addStartCheckingWallsAction();
+  addBlindMoveForwardAction(0.2, 70);
+  addCheckWallsAction();
 }
-
-
-void testAlgo()
+void moveForwardAction()
+{ 
+  addMoveForwardAction(0.5, 100);
+  addBlindMoveForwardAction(0.3, 100);
+  addStartCheckingWallsAction();
+  addBlindMoveForwardAction(0.2, 100);
+  addCheckWallsAction();
+}
+void turnLeftAction()
 {
-  // For testing
-
-  startAlgorithm2 = false;
+  if(wallFront)
+  {
+    addIrMonitoringAction(70); 
+  }
+  else
+  {
+    addBlindMoveForwardAction(0.6, 70);
+  }
+  addTurnLeftAction(80);
+  addStartCheckingWallsAction();
+  addBlindMoveForwardAction(0.85, 70);
+  addCheckWallsAction();
 }
-
-
-
+void turnRightAction()
+{
+  if(wallFront)
+  {
+    addIrMonitoringAction(70); 
+  }
+  else
+  {
+    addBlindMoveForwardAction(0.6, 70);
+  }
+  addTurnRightAction(80);
+  addStartCheckingWallsAction();
+  addBlindMoveForwardAction(0.85, 70);
+  addCheckWallsAction();
+}
+void turnAroundAction()
+{
+  addIrMonitoringAction(70);
+  addTurnAroundAction(80);
+  addBlindReverseAction(0.5, 68);
+  startOffsetAction();
+}
 
 
 
