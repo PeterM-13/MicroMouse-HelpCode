@@ -12,18 +12,19 @@ const int RIGHT_ENCODER_PIN = 7;
 
 // Default motor Bias (found with trial and error currenly)
 const int LEFT_MOTOR_BIAS = 0;
-const int RIGHT_MOTOR_BIAS = 3; 
+const int RIGHT_MOTOR_BIAS = 2; 
 // Varying motor bias - used for lane centering
 int leftMotorBias = LEFT_MOTOR_BIAS;
 int rightMotorBias = RIGHT_MOTOR_BIAS;
 
 // Number of encoder cycles to move one cell, found with trial and error currently
-const int CELL_DISTANCE = 585; 
+const int CELL_DISTANCE = 578; 
 
 // Constansts used for lane centering (LC) (Adjust with trail and error)
-const int LC_OFF_AXES_THRESHOLD = 2; // How tight to the middle of the lane it stays. Lower = more sensitive.
+const int LC_OFF_AXES_THRESHOLD = 3; // How tight to the middle of the lane it stays. Lower = more sensitive.
 //const float LC_KP = 2.0; // Proportional Gain - how quickly it adjusts. Lower = more sesnsitive.
 const signed int LC_LEFT_RIGHT_BIAS = -4;  // Corrects bias left or right of the lane - make negative for left movement
+const int MAX_CORRECTION = 20;
 
 // Varriables keeping track of live positional data
 int leftMotorDirection = parked;
@@ -31,8 +32,10 @@ int rightMotorDirection = parked;
 int spinDirection = notSpinning;
 int leftMotorSteps = 0;
 int rightMotorSteps = 0;
+int prevAvgMotorSteps = 0;
 int leftMotorSpeed = 0;
 int rightMotorSpeed = 0;
+int stepsSincelastWallGap = 0;
 
 // Variables to store values that dictate when certiain actions should stop
 int leftMotorStepsEnd = 0;
@@ -96,6 +99,23 @@ void loopMotors()
       {
         print("INFO: Steps end reached");
         parkMotors(true);
+      } 
+      else if(spinDirection == notSpinning)
+      {
+        // Monitor last wall opening
+        if(irReadings[LEFT_LED][IR_VALUE] > IR_SENSOR_2_WALL_THRESHOLD * 3 ||
+          irReadings[RIGHT_LED][IR_VALUE] > IR_SENSOR_3_WALL_THRESHOLD * 3) // No wall left or right
+        {
+          int avgMotorSteps = round((leftMotorSteps + rightMotorSteps) / 2.0);
+          int diffAvgMotorSteps = avgMotorSteps - prevAvgMotorSteps;
+          prevAvgMotorSteps = avgMotorSteps;
+          stepsSincelastWallGap += diffAvgMotorSteps;
+        }
+        else if(stepsSincelastWallGap > 0)
+        {
+          stepsSincelastWallGap = 0;
+          prevAvgMotorSteps = 0;
+        }
       }
     }
 
@@ -104,16 +124,11 @@ void loopMotors()
     // {
     //   parkMotors();
     // }
-    //isWallFrontClose();
-    // if(wallFrontClose)
-    // {
-    //   collisionSolution();
-    // }
+
 
     if(laneCenteringActive)
     {
       laneCenter();
-      //laneCenterPID();
     }
   }
 
@@ -224,6 +239,7 @@ void parkMotors(bool withBrake)
   collisionDetectionActive = true;
   leftMotorSteps = 0; // Reset to 0 incase of overflow
   rightMotorSteps = 0;
+  if(stepsSincelastWallGap > 0){prevAvgMotorSteps = round((leftMotorSteps+rightMotorSteps)/2) - prevAvgMotorSteps;}
   resetMotorBias();
   print("INFO: Motors Parked");
 }
@@ -235,24 +251,20 @@ void rotate(float angle)
 }
 void turnRight()
 {
-  int distanceToTravel = 90 * 2.42;  // Convert angle to steps
+  int distanceToTravel = 90 * 2.40;  // Convert angle to steps
   leftMotorStepsEnd = leftMotorSteps + distanceToTravel;
   rightMotorStepsEnd = rightMotorSteps + distanceToTravel;
-  navRight();
   driveMotorsOpposite(true);
 }
 void turnLeft()
 {
-  int distanceToTravel = 90 * 2.52;  // Convert angle to steps
+  int distanceToTravel = 90 * 2.50;  // Convert angle to steps
   leftMotorStepsEnd = leftMotorSteps + distanceToTravel;
   rightMotorStepsEnd = rightMotorSteps + distanceToTravel;
-  navLeft();
   driveMotorsOpposite(false);
 }
 void turnAround()
 {
-  navRight();
-  navRight();
   if(irReadings[LEFT_LED][IR_VALUE] < irReadings[RIGHT_LED][IR_VALUE]) // Closer to left wall, so turn right (clockwise)
   {
     int distanceToTravel = 180 * 2.42;  // Convert angle to steps
@@ -335,7 +347,7 @@ void detectCollisionWithSteps()
       }
       else // Reversing into wall to re-allign
       {
-        delay(400);
+        delay(200);
         parkMotors();
       }
     }
@@ -344,7 +356,6 @@ void detectCollisionWithSteps()
   }
 }
 
-const int MAX_CORRECTION = 30;
 void laneCenter()
 {
   resetMotorBias();

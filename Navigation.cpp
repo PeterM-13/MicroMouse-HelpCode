@@ -1,17 +1,19 @@
 #include "Navigation.h"
 
 int currentCell[2];
-int relativeDirection = EAST;
+int currentDirection = EAST;
 
+// [0,0] = Bottom Left
 void setupNavigation()
 {
-  currentCell[X] = 0;
-  currentCell[Y] = 0;
+  currentDirection = EAST;
+  currentCell[X] = 3;
+  currentCell[Y] = 15;
 }
 
 void navForward()
 {
-  switch (relativeDirection)
+  switch (currentDirection)
   {
     case NORTH:
       currentCell[Y] ++;
@@ -30,39 +32,64 @@ void navForward()
 
 void navRight()
 {
-  switch (relativeDirection)
+  switch (currentDirection)
   {
     case NORTH:
-      relativeDirection = EAST;
+      currentDirection = EAST;
       break;
     case EAST:
-      relativeDirection = SOUTH;
+      currentDirection = SOUTH;
       break;
     case SOUTH:
-      relativeDirection = WEST;
+      currentDirection = WEST;
       break;
     case WEST:
-      relativeDirection = NORTH;
+      currentDirection = NORTH;
       break;
   }
 }
 void navLeft()
 {
-  switch (relativeDirection)
+  switch (currentDirection)
   {
     case NORTH:
-      relativeDirection = WEST;
+      currentDirection = WEST;
       break;
     case EAST:
-      relativeDirection = NORTH;
+      currentDirection = NORTH;
       break;
     case SOUTH:
-      relativeDirection = EAST;
+      currentDirection = EAST;
       break;
     case WEST:
-      relativeDirection = SOUTH;
+      currentDirection = SOUTH;
       break;
   }
+}
+
+int* getCell(int relativeDir) 
+{
+  static int result[2];
+  result[X] = currentCell[X];
+  result[Y] = currentCell[Y];
+  int offsets[4][4][2] = {
+      // NORTH  | EAST   | SOUTH  | WEST
+      {{0, 1}, {1, 0}, {0, -1}, {-1, 0}}, // Facing NORTH
+      {{1, 0}, {0, -1}, {-1, 0}, {0, 1}}, // Facing EAST
+      {{0, -1}, {-1, 0}, {0, 1}, {1, 0}}, // Facing SOUTH
+      {{-1, 0}, {0, 1}, {1, 0}, {0, -1}}  // Facing WEST
+  };
+
+  // Adjust coordinates based on the relative direction and the requested direction
+  result[X] += offsets[currentDirection][relativeDir][X];
+  result[Y] += offsets[currentDirection][relativeDir][Y];
+
+  return result;
+}
+
+float distToMiddle(int coord[2])
+{
+  return sqrt(pow(coord[X] - 7.5, 2) + pow(coord[Y] - 7.5, 2));
 }
 
 bool checkMiddle()

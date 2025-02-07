@@ -21,6 +21,8 @@ enum spinDirection
 };
 
 extern bool laneCenteringActive;
+extern int stepsSincelastWallGap;
+extern const int CELL_DISTANCE;
 
 void setupMotors();
 void loopMotors();

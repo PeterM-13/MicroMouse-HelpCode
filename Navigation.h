@@ -1,6 +1,9 @@
 #ifndef NAVIGATION
 #define NAVIGATION
 
+#include <Arduino.h>
+#include <math.h>
+
 // Define Types
 enum coordinates
 {
@@ -20,6 +23,9 @@ void setupNavigation();
 void navForward();
 void navRight();
 void navLeft();
+
+int* getCell(int direction);
+float distToMiddle(int coord[2]);
 
 bool checkMiddle();
 

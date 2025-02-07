@@ -70,6 +70,9 @@ Action* seeNextAction(CircularBuffer &cb);
 // Replaces the current actoin with a new one
 void replaceCurrentAction(CircularBuffer &cb, Action action);
 
+// Inserts new action at begining of buffer
+void insertAction(CircularBuffer &cb, Action action);
+
 // Functions to add actions to buffer
 void addBlindMoveForwardAction(float nCells, int speed);
 void addMoveForwardAction(float nCells, int speed);

@@ -22,8 +22,8 @@ bool checkedIrReadings = false;
 
 // Max IR reading limits to detect a wall
 const int IR_SENSOR_1_WALL_THRESHOLD = 400;
-const int IR_SENSOR_2_WALL_THRESHOLD = 100;
-const int IR_SENSOR_3_WALL_THRESHOLD = 100;
+const int IR_SENSOR_2_WALL_THRESHOLD = 120;
+const int IR_SENSOR_3_WALL_THRESHOLD = 120;
 const int IR_SENSOR_4_WALL_THRESHOLD = 400;
 const int IR_SENSOR_1_4_SIDE_WALL_THRESHOLD = 500;
 
@@ -56,8 +56,9 @@ void setupLEDs()
 
 void loopLEDs()
 {
-  if(readAllSensorsOnce || readAllSensorsCont)
-  {
+  // if(readAllSensorsOnce || readAllSensorsCont)
+  // {
+    // Read sensors ALL the time.
     if(prevIrReadEnded) // If finished reading prev sensor
     {
       currentSensor ++;
@@ -80,12 +81,12 @@ void loopLEDs()
         }
       }
     }
-  }
-  else if(laneCenteringActive)
-  {
-    // Read all sensors constantly if laneCentering, or next action is blindMoveForward.
-    readAllSensorsOnce = true;
-  }
+  // }
+  // else if(laneCenteringActive)
+  // {
+  //   // Read all sensors constantly if laneCentering, or next action is blindMoveForward.
+  //   readAllSensorsOnce = true;
+  // }
 }
 
 void checkAllWalls()
@@ -93,10 +94,10 @@ void checkAllWalls()
   wallFront = (irReadings[FRONT_LEFT_LED][0] < IR_SENSOR_1_WALL_THRESHOLD && irReadings[FRONT_RIGHT_LED][0] < IR_SENSOR_4_WALL_THRESHOLD);
   wallLeft = (irReadings[LEFT_LED][0] < IR_SENSOR_2_WALL_THRESHOLD); //|| (FL < IR_SENSOR_1_4_SIDE_WALL_THRESHOLD && FR > IR_SENSOR_1_4_SIDE_WALL_THRESHOLD);
   wallRight = (irReadings[RIGHT_LED][0] < IR_SENSOR_3_WALL_THRESHOLD);// || (FL > IR_SENSOR_1_4_SIDE_WALL_THRESHOLD && FR < IR_SENSOR_1_4_SIDE_WALL_THRESHOLD);
-  const int frontIRLimit = 300;
-  const int sideIRLimit = 550;
-  wallFrontClose = (irReadings[LEFT_LED][0] < sideIRLimit && irReadings[RIGHT_LED][0] < sideIRLimit && irReadings[FRONT_LEFT_LED][0] < frontIRLimit && irReadings[FRONT_RIGHT_LED][0] < frontIRLimit);
-  checkedIrReadings = true;
+  //const int frontIRLimit = 300;
+  //const int sideIRLimit = 550;
+  //wallFrontClose = (irReadings[LEFT_LED][0] < sideIRLimit && irReadings[RIGHT_LED][0] < sideIRLimit && irReadings[FRONT_LEFT_LED][0] < frontIRLimit && irReadings[FRONT_RIGHT_LED][0] < frontIRLimit);
+  //checkedIrReadings = true;
 }
 
 

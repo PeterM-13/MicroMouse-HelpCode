@@ -17,7 +17,6 @@ extern bool wallLeft;
 extern bool wallRight;
 extern bool wallBack;
 extern bool wallFront;
-extern bool wallFrontClose;
 extern bool fatalError;
 extern bool collisionDetectionActive;
 extern bool laneCenteringActive;

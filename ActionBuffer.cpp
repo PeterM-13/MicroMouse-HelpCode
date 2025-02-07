@@ -76,7 +76,6 @@ Action* seeNextAction(CircularBuffer &cb)
   }
 }
 
-
 void replaceCurrentAction(CircularBuffer &cb, Action action)
 {
   if (isBufferEmpty(cb)) 
@@ -92,6 +91,24 @@ void replaceCurrentAction(CircularBuffer &cb, Action action)
     addAction(cb, action);
   }
 }
+
+void insertAction(CircularBuffer &cb, Action action)
+{
+  if (isBufferFull(cb)) 
+  {
+    return;
+  }
+
+  // Move tail backward (wrapping around if needed)
+  cb.tail = (cb.tail - 1 + BUFFER_SIZE) % BUFFER_SIZE;
+
+  // Insert the new action at the new tail position
+  cb.buffer[cb.tail] = action;
+  
+  // Increase count
+  cb.count++;
+}
+
 
 
 

@@ -14,7 +14,6 @@ void setup()
   setupLEDs();
   setupGyro();
   setupOtherIO();
-  setupNavigation();
 
   // Show Setup is complete 
   digitalWrite(LED_BUILTIN, LOW);

@@ -6,9 +6,6 @@
 
  Compare front values before a turn?
 
- steps!? 
- Constantly monitor IR -> record last wall gap. Reset step.
-
 */
 
 bool startAlgorithm = false;
@@ -17,7 +14,7 @@ bool startAlgorithm2 = false;
 void setupAlgorithm()
 {
   delay(500); // Allow button press
-
+  setupNavigation();
   startOffsetAction();
 }
 
@@ -47,23 +44,35 @@ void mainAlgorithm()
     if (checkMiddle())
     {
       startAlgorithm = false;
+      parkMotors();
       ledOn();
       return;
     }
 
     if(!wallFront)
     {
-      if(!wallRight && (bool)random(0,2))
+      if(!wallRight && distToMiddle(getCell(EAST)) < distToMiddle(getCell(NORTH)))
       {
         turnRightAction();
       }
-      else if(!wallLeft && (bool)random(0,2))
+      else if(!wallLeft && distToMiddle(getCell(WEST)) < distToMiddle(getCell(NORTH)))
       {
         turnLeftAction();
       }
       else
       {
         moveForwardAction();
+      }
+    }
+    else if(!wallRight && !wallLeft)
+    {
+      if(distToMiddle(getCell(EAST)) > distToMiddle(getCell(WEST)))
+      {
+         turnLeftAction();
+      }
+      else
+      {
+         turnRightAction();
       }
     }
     else if(!wallRight)
@@ -85,6 +94,7 @@ void mainAlgorithm()
 
 void startOffsetAction()
 {
+  navForward();
   addBlindMoveForwardAction(0.3, 70);
   addStartCheckingWallsAction();
   addBlindMoveForwardAction(0.2, 70);
@@ -92,6 +102,7 @@ void startOffsetAction()
 }
 void moveForwardAction()
 { 
+  navForward();
   addMoveForwardAction(0.5, 100);
   addBlindMoveForwardAction(0.3, 100);
   addStartCheckingWallsAction();
@@ -106,8 +117,18 @@ void turnLeftAction()
   }
   else
   {
-    addBlindMoveForwardAction(0.6, 70);
+    if(stepsSincelastWallGap > 0)
+    {
+      addBlindMoveForwardAction(1.05-(stepsSincelastWallGap/(float)CELL_DISTANCE), 70);
+    }
+    else
+    {
+      wallLeft = true;
+      return;
+    }
   }
+  navLeft();
+  navForward();
   addTurnLeftAction(80);
   addStartCheckingWallsAction();
   addBlindMoveForwardAction(0.85, 70);
@@ -121,8 +142,18 @@ void turnRightAction()
   }
   else
   {
-    addBlindMoveForwardAction(0.6, 70);
+    if(stepsSincelastWallGap > 0)
+    {
+      addBlindMoveForwardAction(1.05-(stepsSincelastWallGap/(float)CELL_DISTANCE), 70);
+    }
+    else
+    {
+      wallRight = true;
+      return;
+    }
   }
+  navRight();
+  navForward();
   addTurnRightAction(80);
   addStartCheckingWallsAction();
   addBlindMoveForwardAction(0.85, 70);
@@ -130,6 +161,8 @@ void turnRightAction()
 }
 void turnAroundAction()
 {
+  navRight();
+  navRight();
   addIrMonitoringAction(70);
   addTurnAroundAction(80);
   addBlindReverseAction(0.5, 68);

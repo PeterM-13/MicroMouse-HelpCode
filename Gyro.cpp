@@ -1,6 +1,6 @@
 #include "Gyro.h"
 
-const float COLLISION_THRESHOLD = 2.1; // smaller = more sensitive
+const float COLLISION_THRESHOLD = 2.5; // smaller = more sensitive
 
 float gyroAngle = 0.0;
 float gyroBiasZ = 0.0;
