@@ -5,17 +5,21 @@ bool startAlgorithm2 = false;
 
 /* *******
 
-  These variables are available to read:
-  currentDirection = NORTH, EAST, SOUTH or WEST.
-  currentCell[X] / currentCell[Y] = Current X, Y position in maze. [0,0] = bottom left.
+  These variables are available to read from:
+  > currentDirection = NORTH, EAST, SOUTH or WEST.
+  > currentCell[X] / currentCell[Y] = Current X, Y position in maze. 
+
+  * [0,0] = bottom left.
+  * Default starting position is [0,0] facing EAST -> Defined in Navigation.cpp.
+  * Update this if want to test your mouse in a different starting position/orientation.
 
  ********/
 
 void setupAlgorithm()
 {
   delay(1000); // Allow button press
-  setupNavigation();
-  startOffsetAction();
+  setupNavigation(); // Resets starting position
+  startOffsetAction(); // Move forward slightly to see walls ahead
 }
 
 
@@ -144,7 +148,11 @@ void testIrReadings()
 
 
 
+
+
 // ------------ Simplified navigation functions -----------
+// Modify at your own risk!
+
 void startOffsetAction()
 {
   navForward();
