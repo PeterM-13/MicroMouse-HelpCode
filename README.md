@@ -1,16 +1,17 @@
 <h1 style="text-decoration: none;">Leonardo MicroMouse Help Code</h1>
 <img height=80px align='right' src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Arduino_Logo.svg/720px-Arduino_Logo.svg.png'/>
 Here you will find the help code for MicroMouse.
-<br>Please also refer to the MicroMouse user guide for more infomation.
+<br>
+Please bear in mind the user guide documentation will be out of date in comparison with this repo.
 
 ## Contents
 <img src="https://github.com/user-attachments/assets/4a2ef373-2c49-4930-8519-a5ad0b24f1ef" alt="MicroMouse Title Page" align="right" height=250px/>
 
 - [Documentation](#documentation)
+    - [Configuration](#config.h)
+    - [How to move your mouse](#how-to-move-your-mouse)
     - [Global Variables](#global-variables)
     - [Global Methods](#global-methods)
-    - [Actions](#actions)
-    - [Action Buffer](#action-buffer)
 - [Getting Started](#getting-started)
 - [Dependency](#dependency)
 - [Contributors](#contributors)
@@ -115,7 +116,7 @@ void printLoopTime();
 
 ## Getting Started
 Create your maze-solving algorthim in `YourAlgorithm.cpp`. <br>
-Make use of the mathods described above, to add actions to the `actionBuffer`.
+Make use of the methods described above, and make sure to set the configurations in `config.h`.
 
 <br>
 
