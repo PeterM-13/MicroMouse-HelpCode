@@ -17,15 +17,6 @@ const int IR_LED_PINS[4] = {IR_LED_1_PIN, IR_LED_2_PIN, IR_LED_3_PIN, IR_LED_4_P
 int irReadings[N_SENSORS][3]; // 4 sensors // 0 = last reading, 1 = last ambient reading, 2 = time end
 int currentSensor = 3; // The sensor currently being read from
 bool prevIrReadEnded = true;
-//bool readAllSensors = false;
-bool checkedIrReadings = false;
-
-// Max IR reading limits to detect a wall
-const int IR_SENSOR_1_WALL_THRESHOLD = 400;
-const int IR_SENSOR_2_WALL_THRESHOLD = 120;
-const int IR_SENSOR_3_WALL_THRESHOLD = 120;
-const int IR_SENSOR_4_WALL_THRESHOLD = 400;
-const int IR_SENSOR_1_4_SIDE_WALL_THRESHOLD = 500;
 
 const int IR_MAX_READING = 1024;
 const int IR_LIMIT = IR_MAX_READING * 0.5;
@@ -75,10 +66,10 @@ void loopLEDs()
       {
         stopIrReading(currentSensor); // Store value
         prevIrReadEnded = true;
-        if(currentSensor == 3)
-        {
-          readAllSensorsOnce = false;
-        }
+        // if(currentSensor == 3)
+        // {
+        //   readAllSensorsOnce = false;
+        // }
       }
     }
   // }
@@ -94,12 +85,7 @@ void checkAllWalls()
   wallFront = (irReadings[FRONT_LEFT_LED][0] < IR_SENSOR_1_WALL_THRESHOLD && irReadings[FRONT_RIGHT_LED][0] < IR_SENSOR_4_WALL_THRESHOLD);
   wallLeft = (irReadings[LEFT_LED][0] < IR_SENSOR_2_WALL_THRESHOLD); //|| (FL < IR_SENSOR_1_4_SIDE_WALL_THRESHOLD && FR > IR_SENSOR_1_4_SIDE_WALL_THRESHOLD);
   wallRight = (irReadings[RIGHT_LED][0] < IR_SENSOR_3_WALL_THRESHOLD);// || (FL > IR_SENSOR_1_4_SIDE_WALL_THRESHOLD && FR < IR_SENSOR_1_4_SIDE_WALL_THRESHOLD);
-  //const int frontIRLimit = 300;
-  //const int sideIRLimit = 550;
-  //wallFrontClose = (irReadings[LEFT_LED][0] < sideIRLimit && irReadings[RIGHT_LED][0] < sideIRLimit && irReadings[FRONT_LEFT_LED][0] < frontIRLimit && irReadings[FRONT_RIGHT_LED][0] < frontIRLimit);
-  //checkedIrReadings = true;
 }
-
 
 
 void startIrReading(const int led)

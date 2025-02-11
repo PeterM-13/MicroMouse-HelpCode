@@ -1,7 +1,6 @@
 #include "Globals.h"
 
 // Constants
-const int DEBUG_MODE = 0; // 1 = some logs, 2 = all logs
 
 // Maze Variables
 bool wallLeft = true;
@@ -13,8 +12,6 @@ bool wallFront = false;
 bool fatalError = false; // If True causes mouse to stop
 bool collisionDetectionActive = true;
 bool laneCenteringActive = false;
-bool readAllSensorsOnce = false;
-bool readAllSensorsCont = false;
 bool updateGyroData = false;
 
 void setupGlobals()

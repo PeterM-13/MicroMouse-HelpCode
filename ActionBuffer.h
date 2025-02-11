@@ -19,7 +19,6 @@ enum ActionType {
   ACTION_TYPE_PARK,               // Stop motors
   ACTION_TYPE_REVERSE,            // reverse
   ACTION_TYPE_CHECK_WALLS,        // Updates the globals wall variables with the latest IR readings
-  ACTION_TYPE_START_WALLS_CHECK,  // Starts taking IR readings
   ACTION_TYPE_IR_MONITOR,         // Starts driving until IR readings are met
   ACTION_TYPE_DELAY,              // Used to simply pause movements
 };
@@ -82,7 +81,6 @@ void addTurnAroundAction(int seed);
 void addParkAction();
 void addBlindReverseAction(float nCells, int speed);
 void addCheckWallsAction();
-void addStartCheckingWallsAction();
 void addIrMonitoringAction(int speed);
 void addDelayAction(float delay_ms);
 

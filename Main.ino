@@ -26,8 +26,8 @@ void loop()
   // External file loops
   loopOtherIO();
   loopGyro();
-  loopMotors();
   loopLEDs();
+  loopMotors();
   loopAlgorithm();
 
   // Main event handler
@@ -67,7 +67,6 @@ void loop()
           break;
         case ACTION_TYPE_IR_MONITOR:
           print("ACTION: IR monitoring");
-          readAllSensorsCont = true;
           startIrMonitoring();
           break;
         case ACTION_TYPE_PARK:
@@ -80,13 +79,8 @@ void loop()
           reverse(action.nCells);
           break;
         case ACTION_TYPE_CHECK_WALLS:
-          print("ACTION: Check All Walls");
+          print("ACTION: Check Walls");
           checkAllWalls();
-          currentActionComplete = true;
-          break;
-        case ACTION_TYPE_START_WALLS_CHECK:
-          print("ACTION: Start Check All Walls");
-          readAllSensorsCont = true;
           currentActionComplete = true;
           break;
         case ACTION_TYPE_DELAY:

@@ -6,9 +6,10 @@ int currentDirection = EAST;
 // [0,0] = Bottom Left
 void setupNavigation()
 {
+  // Define starting square and direction
   currentDirection = EAST;
-  currentCell[X] = 3;
-  currentCell[Y] = 15;
+  currentCell[X] = 0;
+  currentCell[Y] = 0;
 }
 
 void navForward()

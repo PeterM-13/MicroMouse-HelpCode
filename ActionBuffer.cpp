@@ -35,9 +35,6 @@ bool addAction(CircularBuffer &cb, Action action)
   cb.head = (cb.head + 1) % BUFFER_SIZE;
   cb.count++;
 
-  // Serial.print("Added Action: ");
-  // Serial.println(action.type);
-
   return true;
 }
 
@@ -186,15 +183,6 @@ void addIrMonitoringAction(int speed)
   newAction.type = ACTION_TYPE_IR_MONITOR;
   newAction.motor1Speed = speed;
   newAction.motor2Speed = speed;
-  addAction(actionBuffer, newAction);
-}
-void addStartCheckingWallsAction()
-{
-  Action newAction;
-  newAction.timestamp = millis();
-  newAction.type = ACTION_TYPE_START_WALLS_CHECK;
-  newAction.motor1Speed = -1;
-  newAction.motor2Speed = -1;
   addAction(actionBuffer, newAction);
 }
 void addCheckWallsAction()

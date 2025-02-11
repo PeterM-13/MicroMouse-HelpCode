@@ -3,24 +3,6 @@
 Here you will find the help code for MicroMouse.
 <br>Please also refer to the MicroMouse user guide for more infomation.
 
-## Key Changes & Updates
-Acheived 'Maze-Routing'.
-- Made IR reading ansyc with 3ms delay. Rest of program continue in that time.
-This made a huge difference and almost trippled the granuality of the readings.
-- Improved lane centering.
-- Added collision detection using the step count.
-Where if I detect the wheels are not spinning when they should be, I stop.
-- Attempted a `collisionSolution()`, but not fully implemented this yet.
-This involved adding a new method to the action buffer to replace the current action with a new one.
-So if I detect a collision I could replace the current action with a 'reverse' action.
-- Added `irMonitoring` action, to drive forwards until an IR reading is detected.
-This is used just before turning to ensure right distance from wall infront.
-- Added ability to turn around when reached a dead-end. It reverses against the wall behind to re-aligh.
-I added a `turnAround` action to enable this. It turns around in the direction away from the closest wall to avoid a collision.
-- Added designated `turnLeft` and `turnRight` actions. 
-Removed the `rotate` action, as I found a different number of steps required for each.
-- Improved gyro functionality, but still seems unusable. Has a +/- 10deg error.
-
 ## Contents
 <img src="https://github.com/user-attachments/assets/4a2ef373-2c49-4930-8519-a5ad0b24f1ef" alt="MicroMouse Title Page" align="right" height=250px/>
 
@@ -36,13 +18,60 @@ Removed the `rotate` action, as I found a different number of steps required for
 
 ## Documentation
 
+### Config.h
+This file contains ALL the variables to control every aspect of your mouse, all in one place.
+```c++
+// *** Recommended order to configure: ***
+CELL_DISTANCE
+LEFT_MOTOR_BIAS
+RIGHT_MOTOR_BIAS
+// Use `testMotors()` for these.
+
+LC_LEFT_RIGHT_BIAS
+LC_LEFT_IR_VALUE
+LC_RIGHT_IR_VALUE
+FRONT_IR_VALUE_DIFF
+// Use `testIrReadings()` for these, looking at Serial Plotter.
+
+TURN_LEFT_DEG_TO_STEPS_MULTIPLIER
+TURN_RIGHT_DEG_TO_STEPS_MULTIPLIER
+// Watch it turning and adjust accordilngly.
+```
+
+### How to move your mouse
+It's recommended to call these methods from 'YourAlgorithm'.
+```c++
+void startOffsetAction();
+// Moves the mouse forwards 80% of a cell. Offsetting it enough to check the walls in the next cell.
+// Called at the begining of the algorithm and after `turnAroundAction`.
+
+void moveForwardAction();
+// Moves the mouse 1 cell forwards.
+// Lane centering is active.
+
+void turnRightAction();
+// Turns the mouse 90 degrees right.
+
+void turnLeftAction();
+// Turns the mouse 90 degrees left.
+
+void turnAroundAction();
+// Turns the mouse 180 degress, in the direction furthest from a wall to avoid collision.
+
+int* getCell(int direction);
+// Returns the cell in the `direction` relative to mouse.
+// For example, if mouse at [10, 5] facing EAST, getCell(NORTH) returns [9, 5].
+// For example, if mouse at [10, 5] facing SOUTH, getCell(NORTH) returns [10, 4].
+
+float distToMiddle(int coord[2]);
+// Returns the distance from `coord` to middle.
+// Use this in combination with `getCell`, like: distToMiddle(getCell(NORTH));
+
+```
+<br>
+
 ### Global variables
 ```c++
-const int DEBUG_MODE = 0; 
-// 0 = No logs, 1 = some logs, 2 = all logs
-// MUST BE SET TO `0` TO OPERATE UNCONNECTED FORM SERIAL MONITOR!
-// When set to >=1 it waits forever until serial monitor connected, so no logs are missed.
-
 bool wallLeft = true;
 bool wallRight = true;
 bool wallBack = true;
@@ -59,12 +88,6 @@ bool collisionDetectionActive = false;
 
 bool laneCenteringActive = false;
 // When `true`, enables lane centering. Also enables contunuous IR sensor readings.
-
-bool readAllSensorsOnce = false;
-// When `true`, gets a reading from each IR sensor once.
-
-bool readAllSensorsCont = false;
-// When `true`, continuously gets readings from the IR sensors.
 
 bool updateGyroData = false;
 // When `true`, continuously gets data from gyro, and updates Z angle.
@@ -86,88 +109,6 @@ void ledOff();
 
 void printLoopTime();
 // If called from a `loop`ing function, it prints the time to complete 1 cycle.
-```
-
-### Actions
-For each of these methods, `speed` is between 50-100.
-These methods are defined in `ActionBuffer.cpp`. 
-It's recommended to call these methods from `YourAlgorithm.cpp`.
-```c++
-
-void addBlindMoveForwardAction(float nCells, int speed);
-// Moves the mouse forwards at `speed`. 
-// Stops after traveling the number of cells `nCells`. 
-// No IR detection and no lane centering.
-
-void addMoveForwardAction(float nCells, int speed);
-// Moves the mouse forwards at `speed`. 
-// Stops after traveling the number of cells `nCells`. 
-// With IR detection and lane centering.
-
-void addTurnRightAction(int speed);
-// Rotates the mouse clockwise 90˙ at `speed`.
-// Simply rotates the wheels in oppotise directions.
-
-void addTurnLeftAction(int speed);
-// Rotates the mouse anti-clockwise 90˙ at `speed`.
-// Simply rotates the wheels in oppotise directions.
-
-void addTurnAroundAction(int speed);
-// Rotates the mouse 180˙ at `speed`.
-// Will rotate clockwise/anti-clockwise depending which wall it's closest to, to avoid collision.
-
-void addParkAction();
-// Stops both motors and sets speed to zero.
-
-void addBlindReverseAction(float nCells, int speed);
-// Moves the mouse backwards at `speed`. 
-// Stops after traveling the number of cells `nCells`. 
-// No IR detection and no lane centering.
-
-void addCheckWallsAction();
-// Updates the global boolean variables `wallFront`, `wallBack`, `wallLeft`, `wallRight`.
-
-void addStartCheckingWallsAction();
-// As the process of reading the IR sensors is async, this action starts the process.
-// Once called, each sensor will be read from continuously until a `checkAllWallsAction` is called.
-
-void addIrMonitoringAction(int speed);
-// Drives forwards at `speed` unitl front wall close - using front IR sensors.
-
-void addDelayAction(float delay_ms);
-// Causes a pause for `delay_ms` milliseconds.
-```
-
-### Action Buffer
-A circular buffer class used to keep track of actions the mouse needs to perform.
-```c++
-void initBuffer(CircularBuffer &cb);
-// Initialises a new circular buffer to store data/actions.
-
-bool isBufferFull(CircularBuffer &cb);
-// Returns a Boolean indicating if the circular buffer `cb` is full. 
-// Returns `true` if full.
-
-bool isBufferEmpty(CircularBuffer &cb);
-// Returns a Boolean indicating if the circular buffer `cb` is empty. 
-// Returns `true` if empty.
-
-bool addAction(CircularBuffer &cb, Action action);
-// Adds the action `action` to the circular buffer `cb`. 
-// Returns `false` if buffer is full.
-
-bool getAction(CircularBuffer &cb, Action &action);
-// Sets `action` to the next action from the circular buffer `cb` and removes the action from the buffer. 
-// Returns `false` if buffer is empty.
-
-Action* seeNextAction(CircularBuffer &cb);
-// Returns the next action in the buffer.
-
-void clearBuffer(CircularBuffer &cb);
-// Empties the buffer `cb`.
-
-void replaceCurrentAction(CircularBuffer &cb, Action action);
-// Replaces the currenct action with the new `action`.
 ```
 
 <br>

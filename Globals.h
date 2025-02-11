@@ -6,6 +6,7 @@
 #include <cmath>
 
 #include "ActionBuffer.h"
+#include "Confg.h"
 
 
 // ------------- Define Global Vars ----------

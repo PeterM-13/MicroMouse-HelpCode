@@ -87,7 +87,7 @@ bool checkButtonsForPress()
     startAlgorithm2 = true;
     startAlgorithm = false;
     clearBuffer(actionBuffer);
-    setupAlgorithm();
+    //setupAlgorithm();
     return true;
   }
   return false;

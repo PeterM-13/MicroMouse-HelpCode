@@ -10,21 +10,9 @@ const int RIGHT_MOTOR_PIN_B = 4;
 const int LEFT_ENCODER_PIN = 6;
 const int RIGHT_ENCODER_PIN = 7;
 
-// Default motor Bias (found with trial and error currenly)
-const int LEFT_MOTOR_BIAS = 0;
-const int RIGHT_MOTOR_BIAS = 2; 
 // Varying motor bias - used for lane centering
 int leftMotorBias = LEFT_MOTOR_BIAS;
 int rightMotorBias = RIGHT_MOTOR_BIAS;
-
-// Number of encoder cycles to move one cell, found with trial and error currently
-const int CELL_DISTANCE = 578; 
-
-// Constansts used for lane centering (LC) (Adjust with trail and error)
-const int LC_OFF_AXES_THRESHOLD = 3; // How tight to the middle of the lane it stays. Lower = more sensitive.
-//const float LC_KP = 2.0; // Proportional Gain - how quickly it adjusts. Lower = more sesnsitive.
-const signed int LC_LEFT_RIGHT_BIAS = -4;  // Corrects bias left or right of the lane - make negative for left movement
-const int MAX_CORRECTION = 20;
 
 // Varriables keeping track of live positional data
 int leftMotorDirection = parked;
@@ -44,13 +32,11 @@ float gyroAngleEnd = 0.0;
 long actionDelayEnd = 0.0;
 bool actionDelayActive = false;
 bool irMonitoringActive = false;
-int irMonitoringEnd = 47;
+//int irMonitoringEnd = 47;
 
 // Variables used for collision detection
 long colDetcPrevTime_ms = 0; // Last time collisions were detected
 int colDetcPrevStepCount = 0; // Last time step count was checked
-const int COL_DETC_TIME_GAP_ms = 500;   // Check for collision every 500ms
-const int COL_DETC_STEP_THRESHOLD= 50; // Check for min 50 steps every 500ms
 
 
 void setupMotors()
@@ -83,8 +69,6 @@ void loopMotors()
       detectCollisionWithSteps();
     }
     
-
-    
     if(irMonitoringActive)
     {
       if(irMonitoringEnd > irReadings[FRONT_LEFT_LED][IR_VALUE] || irMonitoringEnd > irReadings[FRONT_RIGHT_LED][IR_VALUE])
@@ -103,15 +87,18 @@ void loopMotors()
       else if(spinDirection == notSpinning)
       {
         // Monitor last wall opening
-        if(irReadings[LEFT_LED][IR_VALUE] > IR_SENSOR_2_WALL_THRESHOLD * 3 ||
-          irReadings[RIGHT_LED][IR_VALUE] > IR_SENSOR_3_WALL_THRESHOLD * 3) // No wall left or right
+        if(irReadings[LEFT_LED][IR_VALUE] > IR_SENSOR_2_WALL_THRESHOLD/2.0 ||
+          irReadings[RIGHT_LED][IR_VALUE] > IR_SENSOR_3_WALL_THRESHOLD/2.0) // No wall left or no wall right
         {
           int avgMotorSteps = round((leftMotorSteps + rightMotorSteps) / 2.0);
           int diffAvgMotorSteps = avgMotorSteps - prevAvgMotorSteps;
+          if(abs(diffAvgMotorSteps) < 10)
+          {
+            stepsSincelastWallGap += diffAvgMotorSteps;
+          }
           prevAvgMotorSteps = avgMotorSteps;
-          stepsSincelastWallGap += diffAvgMotorSteps;
         }
-        else if(stepsSincelastWallGap > 0)
+        else if(stepsSincelastWallGap > 0) // There is wall left & right again
         {
           stepsSincelastWallGap = 0;
           prevAvgMotorSteps = 0;
@@ -124,7 +111,6 @@ void loopMotors()
     // {
     //   parkMotors();
     // }
-
 
     if(laneCenteringActive)
     {
@@ -164,7 +150,7 @@ void driveMotors()
   analogWrite(LEFT_MOTOR_PIN_A, leftMotorSpeed - rightMotorBias); 
   analogWrite(LEFT_MOTOR_PIN_B, 0);
   leftMotorDirection = driving;
-  analogWrite(RIGHT_MOTOR_PIN_A, 0); 
+  analogWrite(RIGHT_MOTOR_PIN_A, 0);
   analogWrite(RIGHT_MOTOR_PIN_B, rightMotorSpeed - leftMotorBias);
   rightMotorDirection = driving;
 }
@@ -179,6 +165,7 @@ void reverseMotors()
 }
 void driveMotorsOpposite(bool clockwise)
 {
+  resetCollisionDetection();
   if(clockwise == true) // Clockwise
   {
     spinDirection = clockwise;
@@ -234,12 +221,11 @@ void parkMotors(bool withBrake)
   laneCenteringActive = false;
   currentActionComplete = true;
   irMonitoringActive = false;
-  readAllSensorsCont = false;
   updateGyroData = false;
   collisionDetectionActive = true;
+  prevAvgMotorSteps = 0;
   leftMotorSteps = 0; // Reset to 0 incase of overflow
   rightMotorSteps = 0;
-  if(stepsSincelastWallGap > 0){prevAvgMotorSteps = round((leftMotorSteps+rightMotorSteps)/2) - prevAvgMotorSteps;}
   resetMotorBias();
   print("INFO: Motors Parked");
 }
@@ -249,16 +235,29 @@ void rotate(float angle)
   rotateWithEncoders(angle);
   //rotateWithGyro(angle);
 }
+
 void turnRight()
 {
-  int distanceToTravel = 90 * 2.40;  // Convert angle to steps
+  // If diff positive, left side greater, so left side further, so turn more to go right
+  int diff = 0;
+  if(wallFront)
+  {
+    diff = ((irReadings[FRONT_LEFT_LED][IR_VALUE]+FRONT_IR_VALUE_DIFF) - (irReadings[FRONT_RIGHT_LED][IR_VALUE]-FRONT_IR_VALUE_DIFF)) * TURNING_DIFF_SCALE;
+  }
+  const int distanceToTravel = (90+diff) * TURN_RIGHT_DEG_TO_STEPS_MULTIPLIER;  // Convert angle to steps
   leftMotorStepsEnd = leftMotorSteps + distanceToTravel;
   rightMotorStepsEnd = rightMotorSteps + distanceToTravel;
   driveMotorsOpposite(true);
 }
 void turnLeft()
 {
-  int distanceToTravel = 90 * 2.50;  // Convert angle to steps
+  // If diff positive, right side greater, so right side further, so turn more to go left
+  int diff = 0;
+  if(wallFront)
+  {
+    diff = ((irReadings[FRONT_RIGHT_LED][IR_VALUE]-FRONT_IR_VALUE_DIFF) - (irReadings[FRONT_LEFT_LED][IR_VALUE]+FRONT_IR_VALUE_DIFF)) * TURNING_DIFF_SCALE;
+  }
+  const int distanceToTravel = (90+diff) * TURN_LEFT_DEG_TO_STEPS_MULTIPLIER;  // Convert angle to steps
   leftMotorStepsEnd = leftMotorSteps + distanceToTravel;
   rightMotorStepsEnd = rightMotorSteps + distanceToTravel;
   driveMotorsOpposite(false);
@@ -267,7 +266,7 @@ void turnAround()
 {
   if(irReadings[LEFT_LED][IR_VALUE] < irReadings[RIGHT_LED][IR_VALUE]) // Closer to left wall, so turn right (clockwise)
   {
-    int distanceToTravel = 180 * 2.42;  // Convert angle to steps
+    const int distanceToTravel = 180 * 2.42;  // Convert angle to steps
     leftMotorStepsEnd = leftMotorSteps + distanceToTravel;
     rightMotorStepsEnd = rightMotorSteps + distanceToTravel;
     driveMotorsOpposite(true);
@@ -302,6 +301,7 @@ void rotateWithGyro(float angle)
 void startIrMonitoring()
 {
   irMonitoringActive = true;
+  resetCollisionDetection();
   driveMotors();
   print("INFO: IR monitoring started.");
 }
@@ -313,21 +313,9 @@ void startActionDelay(float delay_ms){
 
 
 // ---------- Other methods ----------
-void collisionSolution()
-{
-    // Reverse a small amount and skip current action in buffer
-    Action newAction;
-    newAction.timestamp = millis();
-    newAction.type = ACTION_TYPE_REVERSE;
-    newAction.nCells = 0.15;
-    newAction.motor1Speed = 60;
-    newAction.motor2Speed = 60;
-    replaceCurrentAction(actionBuffer, newAction);
-}
-
 void resetCollisionDetection()
 {
-  colDetcPrevStepCount = abs(leftMotorSteps + rightMotorSteps) / 2.0; 
+  colDetcPrevStepCount = round(leftMotorSteps + rightMotorSteps) / 2.0; 
   colDetcPrevTime_ms = millis();
 }
 
@@ -336,14 +324,13 @@ void detectCollisionWithSteps()
 {
   if(millis() > (colDetcPrevTime_ms + COL_DETC_TIME_GAP_ms))
   {
-    if(abs((leftMotorSteps + rightMotorSteps) / 2.0) < (colDetcPrevStepCount + COL_DETC_STEP_THRESHOLD))
+    if(round((leftMotorSteps + rightMotorSteps) / 2.0) < (colDetcPrevStepCount + COL_DETC_STEP_THRESHOLD))
     {
       // Collision Detected!
       if(collisionDetectionActive)
       {
         print("ERROR: Collision detected from steps!");
         fatalError = true;
-        //collisionSolution(); // TODO: This is not working as exected yet
       }
       else // Reversing into wall to re-allign
       {
@@ -351,7 +338,7 @@ void detectCollisionWithSteps()
         parkMotors();
       }
     }
-    colDetcPrevStepCount = abs((leftMotorSteps + rightMotorSteps) / 2.0);
+    colDetcPrevStepCount = round((leftMotorSteps + rightMotorSteps) / 2.0);
     colDetcPrevTime_ms = millis();
   }
 }
@@ -359,30 +346,45 @@ void detectCollisionWithSteps()
 void laneCenter()
 {
   resetMotorBias();
-  const int leftWall = (irReadings[LEFT_LED][0] < 280); 
-  const int rightWall = (irReadings[RIGHT_LED][0] < 280);
-  // Only if there is a wall either side try IR lane centering
+  const int leftWall = (irReadings[LEFT_LED][0] < 250); 
+  const int rightWall = (irReadings[RIGHT_LED][0] < 250);
+  const int left = irReadings[LEFT_LED][IR_VALUE] - LC_LEFT_RIGHT_BIAS;
+  const int right = irReadings[RIGHT_LED][IR_VALUE] + LC_LEFT_RIGHT_BIAS;
+  signed int diff;
+  // Only if there is a wall either side try standard IR lane centering
   if (leftWall && rightWall)
   {
-    const int left = irReadings[LEFT_LED][IR_VALUE] - LC_LEFT_RIGHT_BIAS;
-    const int right = irReadings[RIGHT_LED][IR_VALUE] + LC_LEFT_RIGHT_BIAS;
-    const signed int diff = left - right;  // Positive when needs to move left
-    signed int correction = abs(round(diff));
-    correction = min(abs(correction), MAX_CORRECTION) * (correction/correction);
-    if(diff > LC_OFF_AXES_THRESHOLD) // Too far right, move left
-    {
-      leftMotorBias -= correction;
-      rightMotorBias += correction;
-    }
-    else if(diff < (-1)*LC_OFF_AXES_THRESHOLD)  // Too far left, move right
-    {
-      leftMotorBias += correction;
-      rightMotorBias -= correction;
-    }
-    else
-    {
-      resetMotorBias();
-    }
+    diff = left - right;  // Positive when needs to move left  
+  }
+  else if(leftWall)
+  {
+    diff = left - LC_LEFT_IR_VALUE;
+  }
+  else if(rightWall)
+  {
+    diff = LC_RIGHT_IR_VALUE - right;
+  }
+  else
+  {
+    resetMotorBias();
+    driveMotors();
+    return;
+  }
+  signed int correction = abs(round(diff));
+  correction = min(abs(correction), LC_MAX_CORRECTION) * (correction/correction);
+  if(diff > LC_OFF_AXES_THRESHOLD) // Too far right, move left
+  {
+    leftMotorBias -= correction;
+    rightMotorBias += correction;
+  }
+  else if(diff < (-1)*LC_OFF_AXES_THRESHOLD)  // Too far left, move right
+  {
+    leftMotorBias += correction;
+    rightMotorBias -= correction;
+  }
+  else
+  {
+    resetMotorBias();
   }
   driveMotors();
 }

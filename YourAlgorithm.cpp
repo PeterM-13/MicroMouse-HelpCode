@@ -1,23 +1,22 @@
 #include "YourAlgorithm.h"
 
-/* TODO
-
- Use only on sensor on lane centering
-
- Compare front values before a turn?
-
-*/
-
 bool startAlgorithm = false;
 bool startAlgorithm2 = false;
 
+/* *******
+
+  These variables are available to read:
+  currentDirection = NORTH, EAST, SOUTH or WEST.
+  currentCell[X] / currentCell[Y] = Current X, Y position in maze. [0,0] = bottom left.
+
+ ********/
+
 void setupAlgorithm()
 {
-  delay(500); // Allow button press
+  delay(1000); // Allow button press
   setupNavigation();
   startOffsetAction();
 }
-
 
 
 void loopAlgorithm()
@@ -28,19 +27,23 @@ void loopAlgorithm()
   }
   else if(startAlgorithm2)  // Set True after button 2 pressed
   {
-     //addStartCheckingWallsAction();
-     //addDelayAction(100);
-     //addIrMonitoringAction(80);
-    startAlgorithm = false;
-    startAlgorithm2 = false;
+    // // Restart main algorithm, remembering last position
+    // startAlgorithm2 = false;
+    // startAlgorithm = true;
+    // startOffsetAction();
+
+    testIrReadings();
   }
 }
- 
 
+
+// Algorithm that makes decisions based on proximity to center.
 void mainAlgorithm()
 {
   if(currentActionComplete && isBufferEmpty(actionBuffer))
   {
+
+    // Check if reached the middle. Stop if reached.
     if (checkMiddle())
     {
       startAlgorithm = false;
@@ -53,38 +56,46 @@ void mainAlgorithm()
     {
       if(!wallRight && distToMiddle(getCell(EAST)) < distToMiddle(getCell(NORTH)))
       {
+        // No wall front or right. Turn right as it's close to middle.
         turnRightAction();
       }
       else if(!wallLeft && distToMiddle(getCell(WEST)) < distToMiddle(getCell(NORTH)))
       {
+        // No wall front or left. Turn left as it's close to middle.
         turnLeftAction();
       }
       else
       {
+        // No wall forwards, so go forwards.
         moveForwardAction();
       }
+     // Not considered: (!wallLeft && !wallRight), or decisions of equel distance to middle.
     }
     else if(!wallRight && !wallLeft)
     {
       if(distToMiddle(getCell(EAST)) > distToMiddle(getCell(WEST)))
       {
-         turnLeftAction();
+        turnLeftAction();
       }
       else
       {
-         turnRightAction();
+        turnRightAction();
       }
+      // Not considered: right and left == same dist to middle.
     }
     else if(!wallRight)
     {
+      // If wall in front and no wall right, turn right.
       turnRightAction();
     }
     else if(!wallLeft)
     {
+      // If wall front and no wall left, turn left.
       turnLeftAction();
     }
-    else // Reached dead end, turn around
+    else 
     {
+      // Reached dead end, so turn around.
       turnAroundAction();
     }
   }
@@ -92,88 +103,9 @@ void mainAlgorithm()
 
 
 
-void startOffsetAction()
-{
-  navForward();
-  addBlindMoveForwardAction(0.3, 70);
-  addStartCheckingWallsAction();
-  addBlindMoveForwardAction(0.2, 70);
-  addCheckWallsAction();
-}
-void moveForwardAction()
-{ 
-  navForward();
-  addMoveForwardAction(0.5, 100);
-  addBlindMoveForwardAction(0.3, 100);
-  addStartCheckingWallsAction();
-  addBlindMoveForwardAction(0.2, 100);
-  addCheckWallsAction();
-}
-void turnLeftAction()
-{
-  if(wallFront)
-  {
-    addIrMonitoringAction(70); 
-  }
-  else
-  {
-    if(stepsSincelastWallGap > 0)
-    {
-      addBlindMoveForwardAction(1.05-(stepsSincelastWallGap/(float)CELL_DISTANCE), 70);
-    }
-    else
-    {
-      wallLeft = true;
-      return;
-    }
-  }
-  navLeft();
-  navForward();
-  addTurnLeftAction(80);
-  addStartCheckingWallsAction();
-  addBlindMoveForwardAction(0.85, 70);
-  addCheckWallsAction();
-}
-void turnRightAction()
-{
-  if(wallFront)
-  {
-    addIrMonitoringAction(70); 
-  }
-  else
-  {
-    if(stepsSincelastWallGap > 0)
-    {
-      addBlindMoveForwardAction(1.05-(stepsSincelastWallGap/(float)CELL_DISTANCE), 70);
-    }
-    else
-    {
-      wallRight = true;
-      return;
-    }
-  }
-  navRight();
-  navForward();
-  addTurnRightAction(80);
-  addStartCheckingWallsAction();
-  addBlindMoveForwardAction(0.85, 70);
-  addCheckWallsAction();
-}
-void turnAroundAction()
-{
-  navRight();
-  navRight();
-  addIrMonitoringAction(70);
-  addTurnAroundAction(80);
-  addBlindReverseAction(0.5, 68);
-  startOffsetAction();
-}
-
-
 
 // ------------- Algorithms for hardware tests -------------
 // Run these to identify issues with the hardware.
-
 void testMotors()
 {
   // Drives the mouse forwards at varying speed, slow to fast.
@@ -198,9 +130,7 @@ void testIrReadings()
 {
   // Logs the readings from each phototransistor.
   // View logs in 'Serial Plotter'.
-  // Watch values change as you put an object in front of each sensor.
-  //Serial.println(String(getIRreading(FRONT_LEFT_LED))+","+String(getIRreading(LEFT_LED))+","+String(getIRreading(RIGHT_LED))+","+String(getIRreading(FRONT_RIGHT_LED)));
-  laneCenteringActive = true; // Makes the IR sensor values update constantly   
+  // Watch values change as you put an object in front of each sensor. 
   Serial.print(String(irReadings[FRONT_LEFT_LED][IR_VALUE]));
   Serial.print(",");
   Serial.print(String(irReadings[LEFT_LED][IR_VALUE]));
@@ -208,4 +138,81 @@ void testIrReadings()
   Serial.print(String(irReadings[RIGHT_LED][IR_VALUE]));
   Serial.print(",");
   Serial.println(String(irReadings[FRONT_RIGHT_LED][IR_VALUE]));
+}
+
+
+
+
+
+// ------------ Simplified navigation functions -----------
+void startOffsetAction()
+{
+  navForward();
+  addBlindMoveForwardAction(0.75, 70);
+  addCheckWallsAction();
+}
+void moveForwardAction()
+{ 
+  navForward();
+  addMoveForwardAction(1.0, 100);
+  addCheckWallsAction();
+}
+void turnLeftAction()
+{
+  if(wallFront)
+  {
+    addIrMonitoringAction(70); 
+  }
+  else
+  {
+    const float DIST_OFFSET = 0.8 - (stepsSincelastWallGap/(float)CELL_DISTANCE);
+    if(stepsSincelastWallGap != 0 && DIST_OFFSET >= 0.0)
+    {
+      addBlindMoveForwardAction(DIST_OFFSET, 70);
+    }
+    else
+    {
+      wallLeft = true;
+      return;
+    }
+  }
+  navLeft();
+  navForward();
+  addTurnLeftAction(80);
+  addMoveForwardAction(0.85, 70);
+  addCheckWallsAction();
+}
+void turnRightAction()
+{
+  if(wallFront)
+  {
+    addIrMonitoringAction(70); 
+  }
+  else
+  {
+    const float DIST_OFFSET = 0.8 - (stepsSincelastWallGap/(float)CELL_DISTANCE);
+    if(stepsSincelastWallGap != 0 && DIST_OFFSET >= 0.0)
+    {
+      addBlindMoveForwardAction(DIST_OFFSET, 70);
+    }
+    else
+    {
+      wallRight = true;
+      return;
+    }
+  }
+  navRight();
+  navForward();
+  addTurnRightAction(80);
+  addMoveForwardAction(0.85, 70);
+  addCheckWallsAction();
+}
+void turnAroundAction()
+{
+  navRight();
+  navRight();
+  addIrMonitoringAction(70);
+  addTurnAroundAction(80);
+  addBlindReverseAction(0.5, 68);
+  startOffsetAction();
 }
