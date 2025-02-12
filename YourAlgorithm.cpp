@@ -32,12 +32,12 @@ void loopAlgorithm()
   if(startAlgorithm2)  // Set True after button 2 pressed
   {
     // Continue main algorithm, remembering last position.
-    startAlgorithm2 = false;
-    startAlgorithm = true;
-    clearBuffer(actionBuffer);
-    startOffsetAction();
+    // startAlgorithm2 = false;
+    // startAlgorithm = true;
+    // clearBuffer(actionBuffer);
+    // startOffsetAction();
 
-    //testIrReadings();
+    testIrReadings();
   }
 }
 
@@ -136,6 +136,7 @@ void testIrReadings()
   // Logs the readings from each phototransistor.
   // View logs in 'Serial Plotter'.
   // Watch values change as you put an object in front of each sensor. 
+  irSensorsActive = true;
   Serial.print(String(irReadings[FRONT_LEFT_LED][IR_VALUE]));
   Serial.print(",");
   Serial.print(String(irReadings[LEFT_LED][IR_VALUE]));
