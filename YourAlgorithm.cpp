@@ -27,16 +27,17 @@ void loopAlgorithm()
 { 
   if(startAlgorithm) // Set True after button 1 pressed
   {
-      mainAlgorithm();
+    mainAlgorithm();
   }
-  else if(startAlgorithm2)  // Set True after button 2 pressed
+  if(startAlgorithm2)  // Set True after button 2 pressed
   {
-    // // Restart main algorithm, remembering last position
-    // startAlgorithm2 = false;
-    // startAlgorithm = true;
-    // startOffsetAction();
+    // Continue main algorithm, remembering last position.
+    startAlgorithm2 = false;
+    startAlgorithm = true;
+    clearBuffer(actionBuffer);
+    startOffsetAction();
 
-    testIrReadings();
+    //testIrReadings();
   }
 }
 
@@ -122,7 +123,7 @@ void testMotors()
 }
 void testIrLeds()
 {
-  // Turns each LED ON / OFF for 1 second
+  // Turns each LED ON / OFF for 1 second.
   // Use your phone camera to view if the LED turns on (invisible to human eye).
   // Should see a faint purple glow usning phone camera.
   testLed(FRONT_LEFT_LED);
@@ -187,7 +188,7 @@ void turnLeftAction()
   navLeft();
   navForward();
   addTurnLeftAction(80);
-  addMoveForwardAction(0.85, 70);
+  addMoveForwardAction(0.65, 70);
   addCheckWallsAction();
 }
 void turnRightAction()
@@ -212,7 +213,7 @@ void turnRightAction()
   navRight();
   navForward();
   addTurnRightAction(80);
-  addMoveForwardAction(0.85, 70);
+  addMoveForwardAction(0.65, 70);
   addCheckWallsAction();
 }
 void turnAroundAction()

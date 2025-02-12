@@ -2,6 +2,7 @@
 
 int currentCell[2];
 int currentDirection = EAST;
+float targetCell = 7.5;
 
 // [0,0] = Bottom Left
 void setupNavigation()
@@ -90,7 +91,7 @@ int* getCell(int relativeDir)
 
 float distToMiddle(int coord[2])
 {
-  return sqrt(pow(coord[X] - 7.5, 2) + pow(coord[Y] - 7.5, 2));
+  return sqrt(pow(coord[X]-targetCell, 2) + pow(coord[Y]-targetCell, 2));
 }
 
 bool checkMiddle()

@@ -13,10 +13,6 @@ void setupAlgorithm();
 void loopAlgorithm();
 
 void mainAlgorithm();
-void basicAlgo();
-// void demoSqaureAlgo();
-// void testAlgo();
-// void oneSqrTest(int speed);
 
 void startOffsetAction();
 void moveForwardAction();

@@ -43,14 +43,15 @@ void reverseMotors();
 // Sets both motor's speeds independenty
 void setSpeed(int motor1, int motor2);
 
+void resetVariables();
+
 // Moves mouse forwards a certain number of cells
 void moveForward(float nCells);
 // Moves mouse backwards a certain number of cells
 void reverse(float nCells);
-// Turn on the spot
-void rotate(float angle);
-void rotateWithEncoders(float angle);
-void rotateWithGyro(float angle);
+
+// void rotateWithEncoders(float angle);
+// void rotateWithGyro(float angle);
 void turnRight();
 void turnLeft();
 void turnAround();

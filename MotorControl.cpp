@@ -64,6 +64,9 @@ void loopMotors()
 {
   if(leftMotorDirection != parked || rightMotorDirection != parked) // If moving
   { 
+    // If moving check IR sensors
+    irSensorsActive = true;
+
     if (spinDirection == notSpinning)
     {
       detectCollisionWithSteps();
@@ -71,7 +74,7 @@ void loopMotors()
     
     if(irMonitoringActive)
     {
-      if(irMonitoringEnd > irReadings[FRONT_LEFT_LED][IR_VALUE] || irMonitoringEnd > irReadings[FRONT_RIGHT_LED][IR_VALUE])
+      if(IR_MONITORING_THRESHOLD > irReadings[FRONT_LEFT_LED][IR_VALUE] || IR_MONITORING_THRESHOLD > irReadings[FRONT_RIGHT_LED][IR_VALUE])
       {
         print("INFO: IR monitoring end reached");
         parkMotors(true);
@@ -187,7 +190,21 @@ void driveMotorsOpposite(bool clockwise)
     rightMotorDirection = driving;
   }
 }
-
+void resetVariables()
+{
+  spinDirection = notSpinning;
+  laneCenteringActive = false;
+  currentActionComplete = true;
+  irMonitoringActive = false;
+  updateGyroData = false;
+  collisionDetectionActive = true;
+  prevAvgMotorSteps = 0;
+  leftMotorSteps = 0; // Reset to 0 incase of overflow
+  rightMotorSteps = 0;
+  irSensorsActive = false; // If not moving, no need to check IR sensors
+  resetMotorBias();
+  print("INFO: Variables reset");
+}
 
 // ------------ Actions ---------------
 void moveForward(float nCells)
@@ -208,7 +225,6 @@ void reverse(float nCells)
   reverseMotors();
   print("INFO: Motors Reverse: " + String(nCells) + " squares");
 }
-
 void parkMotors(bool withBrake)
 {
   leftMotorDirection = parked;
@@ -217,25 +233,9 @@ void parkMotors(bool withBrake)
   rightMotorDirection = parked;
   analogWrite(RIGHT_MOTOR_PIN_A, (int)withBrake);
   analogWrite(RIGHT_MOTOR_PIN_B, (int)withBrake); 
-  spinDirection = notSpinning;
-  laneCenteringActive = false;
-  currentActionComplete = true;
-  irMonitoringActive = false;
-  updateGyroData = false;
-  collisionDetectionActive = true;
-  prevAvgMotorSteps = 0;
-  leftMotorSteps = 0; // Reset to 0 incase of overflow
-  rightMotorSteps = 0;
-  resetMotorBias();
-  print("INFO: Motors Parked");
+  print("INFO: Motors parked");
+  resetVariables();
 }
-
-void rotate(float angle)
-{
-  rotateWithEncoders(angle);
-  //rotateWithGyro(angle);
-}
-
 void turnRight()
 {
   // If diff positive, left side greater, so left side further, so turn more to go right
@@ -280,23 +280,23 @@ void turnAround()
   }
 }
 
-void rotateWithEncoders(float angle)
-{
-  int distanceToTravel = abs(angle) * 2.52;  // Convert angle to steps
-  leftMotorStepsEnd = leftMotorSteps + distanceToTravel;
-  rightMotorStepsEnd = rightMotorSteps + distanceToTravel;
-  driveMotorsOpposite(angle > 0.0);
-}
-
-void rotateWithGyro(float angle)
-{
-  updateGyroData = true;
-  const float currentSpeed = ((leftMotorSpeed + rightMotorSpeed) / 2.0); // Used to scale angleOffset, as the faster you go the more error there is.
-  const float angleOffset = 0.009 * currentSpeed; //0.0101
-  gyroAngleEnd = gyroAngle - (angle * angleOffset);
-  driveMotorsOpposite(angle > 0.0);
-  print("INFO: Motors Rotating: " + String(angle));
-}
+// -- Unused funcs for turning to any angle --
+// void rotateWithEncoders(float angle)
+// {
+//   int distanceToTravel = abs(angle) * 2.52;  // Convert angle to steps
+//   leftMotorStepsEnd = leftMotorSteps + distanceToTravel;
+//   rightMotorStepsEnd = rightMotorSteps + distanceToTravel;
+//   driveMotorsOpposite(angle > 0.0);
+// }
+// void rotateWithGyro(float angle)
+// {
+//   updateGyroData = true;
+//   const float currentSpeed = ((leftMotorSpeed + rightMotorSpeed) / 2.0); // Used to scale angleOffset, as the faster you go the more error there is.
+//   const float angleOffset = 0.009 * currentSpeed; //0.0101
+//   gyroAngleEnd = gyroAngle - (angle * angleOffset);
+//   driveMotorsOpposite(angle > 0.0);
+//   print("INFO: Motors Rotating: " + String(angle));
+// }
 
 void startIrMonitoring()
 {

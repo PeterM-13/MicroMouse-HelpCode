@@ -10,16 +10,17 @@ const int CELL_DISTANCE = 600; // Increase to go further
 const int LEFT_MOTOR_BIAS = 0; // Increase to make go right, decrease to go left
 const int RIGHT_MOTOR_BIAS = 3;  // Increase to make go left, decrease to go right
 // How close to get to the wall infront before turning.
-const int irMonitoringEnd = 47; // Direct IR value. Larger value = further from wall
+const int IR_MONITORING_THRESHOLD = 47; // Direct IR value. Larger value = further from wall
 
 // ------------ Constants for turning ---------------
 // Number of steps to count when making left turn
 const float TURN_RIGHT_DEG_TO_STEPS_MULTIPLIER = 2.4; // Increase to to turn right for longer.
 const float TURN_LEFT_DEG_TO_STEPS_MULTIPLIER = 2.5; // Increase to turn left for longer
 // When approaching a wall in front, whats the differnece in the 2 IR front values? AND then half it.
-const int FRONT_IR_VALUE_DIFF = 4;
-// Scale for how much/less extra to turn based on front sensor readings.
-const float TURNING_DIFF_SCALE = 0.5; // Higher = more turning based on readings
+const int FRONT_IR_VALUE_DIFF = 2; // Positive for large right sensor value. E.g. Left=52, Right=56, 56-52=4, 4/2 = 2
+// Scale for how much/less extra to turn based on front sensor readings difference.
+// Set to 0 now, had better results when not active.
+const float TURNING_DIFF_SCALE = 0.0; // Higher = more turning based on readings
 
 // --------  Constansts used for lane centering (LC) --------------
 // How tight to the middle of the lane it stays. Lower value = narrower band to stay in, so more sensitive.
@@ -30,9 +31,9 @@ const signed int LC_LEFT_RIGHT_BIAS = -2; //make negative for left movement
 const int LC_MAX_CORRECTION = 20; // Decrease for small adjustments
 // Following 2 vars used for 1 walled laned centering - so only a wall on the left, or only a wall on the right.
 // Left IR value to aim for when lane centering, with only one side wall.
-const int LC_LEFT_IR_VALUE = 52; 
+const int LC_LEFT_IR_VALUE = 56; 
 // Right IR value to aim for when lane centering, with only one side wall.
-const int LC_RIGHT_IR_VALUE = 58; 
+const int LC_RIGHT_IR_VALUE = 59; 
 
 // --------- Constants for crash detection
 // Crash detection with encoder steps, how often it checks for missed steps.

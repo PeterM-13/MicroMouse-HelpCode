@@ -17,6 +17,7 @@ const int IR_LED_PINS[4] = {IR_LED_1_PIN, IR_LED_2_PIN, IR_LED_3_PIN, IR_LED_4_P
 int irReadings[N_SENSORS][3]; // 4 sensors // 0 = last reading, 1 = last ambient reading, 2 = time end
 int currentSensor = 3; // The sensor currently being read from
 bool prevIrReadEnded = true;
+bool irSensorsActive = false;;
 
 const int IR_MAX_READING = 1024;
 const int IR_LIMIT = IR_MAX_READING * 0.5;
@@ -47,37 +48,25 @@ void setupLEDs()
 
 void loopLEDs()
 {
-  // if(readAllSensorsOnce || readAllSensorsCont)
-  // {
-    // Read sensors ALL the time.
-    if(prevIrReadEnded) // If finished reading prev sensor
+  // Read sensors ALL the time.
+  if(prevIrReadEnded && irSensorsActive) // If finished reading prev sensor
+  {
+    currentSensor ++;
+    if(currentSensor >= N_SENSORS) // Reset count if above 3
     {
-      currentSensor ++;
-      if(currentSensor >= N_SENSORS) // Reset count if above 3
-      {
-        currentSensor = 0;
-      }
-      prevIrReadEnded = false;
-      startIrReading(currentSensor);
+      currentSensor = 0;
     }
-    else  // Prev reading timer not ended yet
+    prevIrReadEnded = false;
+    startIrReading(currentSensor);
+  }
+  else  // Prev reading timer not ended yet
+  {
+    if(micros() >= irReadings[currentSensor][TIME])  // Check if timer should be up
     {
-      if(micros() >= irReadings[currentSensor][TIME])  // Check if timer should be up
-      {
-        stopIrReading(currentSensor); // Store value
-        prevIrReadEnded = true;
-        // if(currentSensor == 3)
-        // {
-        //   readAllSensorsOnce = false;
-        // }
-      }
+      stopIrReading(currentSensor); // Store value
+      prevIrReadEnded = true;
     }
-  // }
-  // else if(laneCenteringActive)
-  // {
-  //   // Read all sensors constantly if laneCentering, or next action is blindMoveForward.
-  //   readAllSensorsOnce = true;
-  // }
+  }
 }
 
 void checkAllWalls()

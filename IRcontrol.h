@@ -6,6 +6,7 @@
 const int N_SENSORS = 4; // Number of sensors
 
 extern int irReadings[N_SENSORS][3];
+extern bool irSensorsActive;
 
 void setupLEDs();
 void loopLEDs();

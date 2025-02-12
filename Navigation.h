@@ -18,6 +18,10 @@ enum compassDirection
     WEST = 3,
 };
 
+extern int currentCell[2];
+extern int currentDirection;
+extern float targetCell;
+
 void setupNavigation();
 
 void navForward();
