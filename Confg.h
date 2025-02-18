@@ -16,10 +16,13 @@ const int IR_MONITORING_THRESHOLD = 47; // Direct IR value. Larger value = furth
 // Number of steps to count when making left turn
 const float TURN_RIGHT_DEG_TO_STEPS_MULTIPLIER = 2.4; // Increase to to turn right for longer.
 const float TURN_LEFT_DEG_TO_STEPS_MULTIPLIER = 2.5; // Increase to turn left for longer
+// IR values used to detect a gap (no wall). Motor steps counted every time gap opens to know when to turn.
+const int IR_SENSOR_2_WALL_GAP_THRESHOLD = 200; // Increase for more sensitivity
+const int IR_SENSOR_3_WALL_GAP_THRESHOLD = 200; // Good range: 120-320;
 // When approaching a wall in front, whats the differnece in the 2 IR front values? AND then half it.
 const int FRONT_IR_VALUE_DIFF = 2; // Positive for large right sensor value. E.g. Left=52, Right=56, 56-52=4, 4/2 = 2
 // Scale for how much/less extra to turn based on front sensor readings difference.
-// Set to 0 now, had better results when not active.
+// Set to 0 now so not active, had better results when not active.
 const float TURNING_DIFF_SCALE = 0.0; // Higher = more turning based on readings
 
 // --------  Constansts used for lane centering (LC) --------------
@@ -29,7 +32,10 @@ const int LC_OFF_AXES_THRESHOLD = 3;
 const signed int LC_LEFT_RIGHT_BIAS = -2; //make negative for left movement 
 // The maximum the lane centering can adjust the motor bias.
 const int LC_MAX_CORRECTION = 20; // Decrease for small adjustments
-// Following 2 vars used for 1 walled laned centering - so only a wall on the left, or only a wall on the right.
+// -- Following vars used for 1 walled laned centering - so only a wall on the left, or only a wall on the right --
+// Value used to intiate one-sided lane centering. Smaller than main wall threshold to detect singular posts.
+const int IR_SENSOR_2_WALL_THRESHOLD_LC = 250; // Increase for more sensitivty. Don't make too big or will detect wall from 2 cells away.
+const int IR_SENSOR_3_WALL_THRESHOLD_LC = 250; // Good range: 120-320;
 // Left IR value to aim for when lane centering, with only one side wall.
 const int LC_LEFT_IR_VALUE = 56; 
 // Right IR value to aim for when lane centering, with only one side wall.

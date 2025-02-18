@@ -90,8 +90,8 @@ void loopMotors()
       else if(spinDirection == notSpinning)
       {
         // Monitor last wall opening
-        if(irReadings[LEFT_LED][IR_VALUE] > IR_SENSOR_2_WALL_THRESHOLD/2.0 ||
-          irReadings[RIGHT_LED][IR_VALUE] > IR_SENSOR_3_WALL_THRESHOLD/2.0) // No wall left or no wall right
+        if(irReadings[LEFT_LED][IR_VALUE] > IR_SENSOR_2_WALL_GAP_THRESHOLD ||
+          irReadings[RIGHT_LED][IR_VALUE] > IR_SENSOR_3_WALL_GAP_THRESHOLD) // No wall left or no wall right
         {
           int avgMotorSteps = round((leftMotorSteps + rightMotorSteps) / 2.0);
           int diffAvgMotorSteps = avgMotorSteps - prevAvgMotorSteps;
@@ -346,8 +346,8 @@ void detectCollisionWithSteps()
 void laneCenter()
 {
   resetMotorBias();
-  const int leftWall = (irReadings[LEFT_LED][0] < 250); 
-  const int rightWall = (irReadings[RIGHT_LED][0] < 250);
+  const int leftWall = (irReadings[LEFT_LED][0] < IR_SENSOR_2_WALL_THRESHOLD_LC); 
+  const int rightWall = (irReadings[RIGHT_LED][0] < IR_SENSOR_3_WALL_THRESHOLD_LC);
   const int left = irReadings[LEFT_LED][IR_VALUE] - LC_LEFT_RIGHT_BIAS;
   const int right = irReadings[RIGHT_LED][IR_VALUE] + LC_LEFT_RIGHT_BIAS;
   signed int diff;
