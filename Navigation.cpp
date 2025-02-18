@@ -1,6 +1,6 @@
 #include "Navigation.h"
 
-int currentCell[2];
+Cell currentCell;
 int currentDirection = EAST;
 float targetCell = 7.5;
 
@@ -9,8 +9,8 @@ void setupNavigation()
 {
   // Define starting square and direction
   currentDirection = EAST;
-  currentCell[X] = 0;
-  currentCell[Y] = 0;
+  currentCell.X = 0;
+  currentCell.Y = 0;
 }
 
 void navForward()
@@ -18,16 +18,16 @@ void navForward()
   switch (currentDirection)
   {
     case NORTH:
-      currentCell[Y] ++;
+      currentCell.Y ++;
       break;
     case EAST:
-      currentCell[X] ++;
+      currentCell.X ++;
       break;
     case SOUTH:
-      currentCell[Y] --;
+      currentCell.Y --;
       break;
     case WEST:
-      currentCell[X] --;
+      currentCell.X --;
       break;
   }
 }
@@ -69,35 +69,30 @@ void navLeft()
   }
 }
 
-int* getCell(int relativeDir) 
+const int offsets[4][4][2] = {
+    // NORTH  | EAST   | SOUTH  | WEST
+    {{0, 1}, {1, 0}, {0, -1}, {-1, 0}}, // Facing NORTH
+    {{1, 0}, {0, -1}, {-1, 0}, {0, 1}}, // Facing EAST
+    {{0, -1}, {-1, 0}, {0, 1}, {1, 0}}, // Facing SOUTH
+    {{-1, 0}, {0, 1}, {1, 0}, {0, -1}}  // Facing WEST
+};
+Cell getCell(int relativeDir) 
 {
-  static int result[2];
-  result[X] = currentCell[X];
-  result[Y] = currentCell[Y];
-  int offsets[4][4][2] = {
-      // NORTH  | EAST   | SOUTH  | WEST
-      {{0, 1}, {1, 0}, {0, -1}, {-1, 0}}, // Facing NORTH
-      {{1, 0}, {0, -1}, {-1, 0}, {0, 1}}, // Facing EAST
-      {{0, -1}, {-1, 0}, {0, 1}, {1, 0}}, // Facing SOUTH
-      {{-1, 0}, {0, 1}, {1, 0}, {0, -1}}  // Facing WEST
+  return {
+    currentCell.X + offsets[currentDirection][relativeDir][X],
+    currentCell.Y + offsets[currentDirection][relativeDir][Y]
   };
-
-  // Adjust coordinates based on the relative direction and the requested direction
-  result[X] += offsets[currentDirection][relativeDir][X];
-  result[Y] += offsets[currentDirection][relativeDir][Y];
-
-  return result;
 }
 
-float distToMiddle(int coord[2])
+float distToMiddle(Cell coord)
 {
-  return sqrt(pow(coord[X]-targetCell, 2) + pow(coord[Y]-targetCell, 2));
+  return sqrt(pow(coord.X-targetCell, 2) + pow(coord.Y-targetCell, 2));
 }
 
 bool checkMiddle()
 {
-  return ((currentCell[X]==7 && currentCell[Y]==7) ||
-  (currentCell[X]==7 && currentCell[Y]==8) ||
-  (currentCell[X]==8 && currentCell[Y]==7) ||
-  (currentCell[X]==8 && currentCell[Y]==8));
+  return ((currentCell.X==7 && currentCell.Y==7) ||
+  (currentCell.X==7 && currentCell.Y==8) ||
+  (currentCell.X==8 && currentCell.Y==7) ||
+  (currentCell.X==8 && currentCell.Y==8));
 }

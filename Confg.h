@@ -10,15 +10,16 @@ const int CELL_DISTANCE = 600; // Increase to go further
 const int LEFT_MOTOR_BIAS = 0; // Increase to make go right, decrease to go left
 const int RIGHT_MOTOR_BIAS = 3;  // Increase to make go left, decrease to go right
 // How close to get to the wall infront before turning.
-const int IR_MONITORING_THRESHOLD = 47; // Direct IR value. Larger value = further from wall
+const int IR_MONITORING_THRESHOLD = 48; // Direct IR value. Larger value = further from wall
 
 // ------------ Constants for turning ---------------
 // Number of steps to count when making left turn
 const float TURN_RIGHT_DEG_TO_STEPS_MULTIPLIER = 2.4; // Increase to to turn right for longer.
-const float TURN_LEFT_DEG_TO_STEPS_MULTIPLIER = 2.5; // Increase to turn left for longer
+const float TURN_LEFT_DEG_TO_STEPS_MULTIPLIER = 2.4; // Increase to turn left for longer
 // IR values used to detect a gap (no wall). Motor steps counted every time gap opens to know when to turn.
 const int IR_SENSOR_2_WALL_GAP_THRESHOLD = 200; // Increase for more sensitivity
 const int IR_SENSOR_3_WALL_GAP_THRESHOLD = 200; // Good range: 120-320;
+// By default, following vars arn't used:
 // When approaching a wall in front, whats the differnece in the 2 IR front values? AND then half it.
 const int FRONT_IR_VALUE_DIFF = 2; // Positive for large right sensor value. E.g. Left=52, Right=56, 56-52=4, 4/2 = 2
 // Scale for how much/less extra to turn based on front sensor readings difference.
@@ -52,7 +53,7 @@ const float COLLISION_THRESHOLD = 2.8; // smaller = more sensitive
 // ------------ Constants for IR sensors -------------
 // Max IR reading limits to detect a wall.
 const int IR_SENSOR_1_WALL_THRESHOLD = 400;
-const int IR_SENSOR_2_WALL_THRESHOLD = 400;
-const int IR_SENSOR_3_WALL_THRESHOLD = 400;
+const int IR_SENSOR_2_WALL_THRESHOLD = 260;
+const int IR_SENSOR_3_WALL_THRESHOLD = 260;
 const int IR_SENSOR_4_WALL_THRESHOLD = 400;
 

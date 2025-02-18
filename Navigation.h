@@ -5,6 +5,10 @@
 #include <math.h>
 
 // Define Types
+struct Cell {
+    int X;
+    int Y;
+};
 enum coordinates
 {
     X = 0,
@@ -18,7 +22,7 @@ enum compassDirection
     WEST = 3,
 };
 
-extern int currentCell[2];
+extern Cell currentCell;
 extern int currentDirection;
 extern float targetCell;
 
@@ -28,8 +32,8 @@ void navForward();
 void navRight();
 void navLeft();
 
-int* getCell(int direction);
-float distToMiddle(int coord[2]);
+Cell getCell(int direction);
+float distToMiddle(Cell coord);
 
 bool checkMiddle();
 
