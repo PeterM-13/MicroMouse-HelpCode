@@ -1,12 +1,11 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#include <vector>
 #include <array>
 #include <cmath>
 
 #include "ActionBuffer.h"
-#include "Confg.h"
+#include "Config.h"
 
 
 // ------------- Define Global Vars ----------

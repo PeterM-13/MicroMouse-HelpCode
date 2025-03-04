@@ -12,7 +12,7 @@ Here you will find the help code for MicroMouse.
     - [Global Methods](#global-methods)
 - [Getting Started](#getting-started)
 - [Dependency](#dependency)
-- [Contributors](#contributors)
+- [Contributor](#contributor)
 - [License](#license)
 
 ## Documentation
