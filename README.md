@@ -1,6 +1,7 @@
 <h1 style="text-decoration: none;">Leonardo MicroMouse Help Code</h1>
 <img height=80px align='right' src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Arduino_Logo.svg/720px-Arduino_Logo.svg.png'/>
-Here you will find the help code for MicroMouse.
+Here you will find the help code for MicroMouse.</br>
+See video of mouse in action: <a href="https://www.linkedin.com/posts/peter-metcalfe-1me_micromouse-2025-at-leonardo-a-video-of-the-activity-7302253248747352065-Xyxl?utm_source=share&utm_medium=member_desktop&rcm=ACoAAD256Z4BQ7PIICXUdG2ZsWr7DpjFH3nBLX0">LinkedIn</a>
 
 ## Contents
 <img src="https://github.com/user-attachments/assets/4a2ef373-2c49-4930-8519-a5ad0b24f1ef" alt="MicroMouse Title Page" align="right" height=250px/>
@@ -113,6 +114,7 @@ void printLoopTime();
 <br>
 
 ## Getting Started
+When cloning this repo, ensure all files are in directory matching .ion file, so 'Main'.<br>
 Create your maze-solving algorthim in `YourAlgorithm.cpp`. <br>
 Make use of the methods described above, and make sure to set the configurations in `config.h`.
 
