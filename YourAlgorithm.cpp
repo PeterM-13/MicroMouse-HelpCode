@@ -7,7 +7,7 @@ bool startAlgorithm2 = false;
 
   These variables are available to read from:
   > currentDirection = NORTH, EAST, SOUTH or WEST.
-  > currentCell[X] / currentCell[Y] = Current X, Y position in maze. 
+  > currentCell.X / currentCell.Y = Current X, Y position in maze. 
 
   * [0,0] = bottom left.
   * Default starting position is [0,0] facing EAST -> Defined in Navigation.cpp.
@@ -31,13 +31,10 @@ void loopAlgorithm()
   }
   if(startAlgorithm2)  // Set True after button 2 pressed
   {
-    // Continue main algorithm, remembering last position.
-    // startAlgorithm2 = false;
-    // startAlgorithm = true;
-    // clearBuffer(actionBuffer);
-    // startOffsetAction();
-
     testIrReadings();
+    // testMotors();
+    // testIrLeds();
+    // startAlgorithm2 = false;  // uncomment this to stop looping
   }
 }
 

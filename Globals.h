@@ -21,8 +21,6 @@ extern bool wallFront;
 extern bool fatalError;
 extern bool collisionDetectionActive;
 extern bool laneCenteringActive;
-extern bool readAllSensorsOnce;
-extern bool readAllSensorsCont; // continuously
 extern bool updateGyroData;
 
 // ------------- Define Global Functions ----------
@@ -45,7 +43,7 @@ enum irReadingsIndexes
 {
   IR_VALUE = 0, // Most recent IR value
   AMBIENT_VALUE = 1,  // Most recent recoring of ambient light
-  TIME = 2, // Time to turn LED off and reord results.
+  TIME = 2, // Time to turn LED off and record results.
 };
 
 #endif // GLOBALS_H

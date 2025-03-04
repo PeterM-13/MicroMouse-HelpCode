@@ -1,8 +1,6 @@
 <h1 style="text-decoration: none;">Leonardo MicroMouse Help Code</h1>
 <img height=80px align='right' src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Arduino_Logo.svg/720px-Arduino_Logo.svg.png'/>
 Here you will find the help code for MicroMouse.
-<br>
-Note, the User-Guide will be out of date in comparison to this repo.
 
 ## Contents
 <img src="https://github.com/user-attachments/assets/4a2ef373-2c49-4930-8519-a5ad0b24f1ef" alt="MicroMouse Title Page" align="right" height=250px/>
@@ -64,7 +62,7 @@ int* getCell(int direction);
 // For example, if mouse at [10, 5] facing EAST, getCell(NORTH) returns [9, 5].
 // For example, if mouse at [10, 5] facing SOUTH, getCell(NORTH) returns [10, 4].
 
-float distToMiddle(int coord[2]);
+float distToMiddle(Cell coord);
 // Returns the distance from `coord` to middle.
 // Use this in combination with `getCell`, like: distToMiddle(getCell(NORTH));
 
@@ -125,10 +123,8 @@ Make use of the methods described above, and make sure to set the configurations
 
 <br>
 
-## Contributors
+## Contributor
 * Peter Metcalfe
-* Yash Kalidindi
-* Abbas Ashfaq
 
 <br>
 <br>
